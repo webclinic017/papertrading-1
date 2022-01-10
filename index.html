@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <style media="screen">
+      .top-buffer { margin-top:20px; }
+      .img-style {max-height: 600px}
+      .border-thick {border: 5px solid #555; padding: 10px; align: center}
+      .my-custom-scrollbar {
+        position: relative;
+        overflow: auto;
+        min-height: 600px;
+      }
+    </style>
+    <title>Lumbinicapital Paper Trading Solutions</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-10 my-custom-scrollbar my-custom-scrollbar-primary">
+          <img id="graph-image" src="http://127.0.0.1:5000/static/cat.jpeg" class="img img-style zoom"/>
+        </div>
+        <div class="col-sm-2">
+
+          <div class="row">
+            <div class="col">
+              <label for="gameidview" class="sr-only">Game ID</label>
+              <input type="text" class="form-control" id="gameidview" readonly>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label for="accuracy" class="sr-only">Accuracy</label>
+              <input type="text" class="form-control" id="accuracy" readonly>
+            </div>
+            <div class="col">
+              <label for="count" class="sr-only">Count</label>
+              <input type="text" class="form-control" id="count" readonly>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label for="maxdrawdown" class="sr-only">Maxdrawdown</label>
+              <input type="text" class="form-control" id="maxdrawdown" readonly>
+            </div>
+            <div class="col">
+              <label for="peak" class="sr-only">Peak</label>
+              <input type="text" class="form-control" id="peak" readonly>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label for="change" class="sr-only">Change</label>
+              <input type="text" class="form-control" id="change" readonly>
+            </div>
+            <div class="col">
+              <label for="partial" class="sr-only">Partial</label>
+              <input type="text" class="form-control" id="partial" readonly>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row top-buffer">
+        <div class="col-sm-12">
+          <form>
+            <div class="row">
+              <div class="col-sm-2">
+                <label for="tradingsymbol" class="sr-only">Tradingsymbol</label>
+                <input type="text" class="form-control" placeholder="Tradingsymbol" id="tradingsymbol" value="NIFTY 50">
+              </div>
+              <div class="col-sm-6">
+                <label for="date-range" class="sr-only">Date Range</label>
+                <input type="text" class="form-control", placeholder="date-range", name="date-range">
+              </div>
+              <div class="col-sm-2 top-buffer">
+                <input class="form-check-input" type="checkbox" value="repeat" id="repeat">
+                <label class="form-check-label" for="repeat">Refresh</label>
+                <br/>
+                <input class="form-check-input" type="checkbox" value="game-mode" id="game-mode" checked>
+                <label class="form-check-label" for="game-mode">Game Mode</label>
+              </div>
+              <div class="col-sm-2 top-buffer">
+                <button type="button" class="btn btn-primary" id="graph-history">Render</button>
+              </div>
+            </div>
+            <div class="row top-buffer" id="game-control">
+              <form>
+                <div class="row">
+                  <div class="col">
+                    <label for="gameid" class="sr-only">GameId</label>
+                    <input type="text" class="form-control" placeholder="gameid" id="gameid" value="unclassified">
+                  </div>
+                  <div class="col">
+                    <label for="lookback" class="sr-only">Look Back(Days)</label>
+                    <input type="text" class="form-control" placeholder="lookback" id="lookback" value="3">
+                  </div>
+                  <div class="col">
+                    <label for="SL" class="sr-only">StopLoss</label>
+                    <input type="text" class="form-control" placeholder="StopLoss" id="sl">
+                  </div>
+                  <div class="col">
+                    <label for="Entry" class="sr-only">Entry</label>
+                    <input type="text" class="form-control" placeholder="Entry" id="Entry">
+                  </div>
+                  <div class="col">
+                    <label for="Target" class="sr-only">Target</label>
+                    <input type="text" class="form-control" placeholder="Target" id="Target">
+                  </div>
+                  <div class="col top-buffer">
+                    <input class="form-check-input" type="checkbox" value="buy" id="buy" checked>
+                    <label class="form-check-label" for="buy">BUY</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-4">
+                    <label for="current-date" class="sr-only">Current Date</label>
+                    <input type="text" class="form-control", placeholder="Current Date" name="current-date" id="current-date" readonly>
+                  </div>
+                  <div class="col-sm-4">
+                    <label for="leadhr" class="sr-only">Lead Hour</label>
+                    <input type="text" class="form-control", placeholder="leadhr" name="leadhr" id="leadhr" readonly>
+                  </div>
+                  <div class="col-sm-4">
+                    <label for="Change" class="sr-only">Change</label>
+                    <input type="text" class="form-control", placeholder="Change" name="Change" id="Change" value="undefined" readonly>
+                  </div>
+
+                </div>
+
+                <div class="row top-buffer">
+                  <div class="col">
+                    <button type="button" class="btn btn-primary" id="Next-Hour">Next Hour</button>
+                  </div>
+                  <div class="col">
+                    <button type="button" class="btn btn-primary" id="Review-Bet">Review Bet</button>
+                  </div>
+                  <div class="col">
+                    <button type="button" class="btn btn-primary" id="Next-Day">Next Day</button>
+                  </div>
+                  <div class="col">
+                    <button type="button" class="btn btn-primary" id="reveal">Reveal</button>
+                  </div>
+
+                </div>
+
+              </form>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="static/wheelzoom.js"></script>
+    <script type="text/javascript">
+      $(function(){
+
+
+        var end = moment().startOf('day').add(9, 'hour').add(14, 'minute');
+        var start = end.clone().subtract(10, 'day');
+        var current = start.clone();
+        var tradingsymbol = 'NIFTY 50'
+        var refresh = false
+        var game_mode = false
+        var buy = true
+        var entry = 0
+        var stoploss = 0
+        var target = 0
+        var lookback = 2
+        var leadhr = 0
+        var gameid = "unclassified"
+
+        $('#current-date').val(current.toString());
+        $('#lookback').val(lookback);
+        $('#tradingsymbol').val(tradingsymbol);
+        $('#sl').val(stoploss);
+        $('#Entry').val(entry);
+        $('#Target').val(target);
+        $('#leadhr').val(leadhr);
+        // wheelzoom(document.querySelector('img.zoom'));
+
+
+        $("#game-mode").change(function(){
+            if($(this).is(":checked")) {
+              $('#game-control').show()
+              game_mode = true
+            } else {
+              $('#game-control').hide()
+              game_mode = false
+            }
+        })
+
+        $("#buy").change(function(){
+            if($(this).is(":checked")) {
+              buy = true
+            } else {
+              buy = false
+            }
+        })
+
+        $("#tradingsymbol").change(function(){
+          tradingsymbol = $(this).val()
+        })
+
+        $("#Entry").change(function(){
+          entry = $(this).val()
+        })
+
+        $("#Target").change(function(){
+          target = $(this).val()
+        })
+
+        $("#sl").change(function(){
+          stoploss = $(this).val()
+        })
+
+        $("#lookback").change(function(){
+          lookback = $(this).val()
+        })
+
+        $("#gameid").change(function(){
+          lookback = $(this).val()
+        })
+
+
+        function stats_refresh(){
+                $.ajax({
+                  headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+                  type: 'GET',
+                  url: 'http://127.0.0.1:5000/stats/'+gameid,
+                  crossDomain: true,
+                  beforeSend: function(xhr){
+                      xhr.withCredentials = true;
+                },
+                  success: function(data, textStatus, request){
+                      const obj = JSON.parse(data);
+                      $('#gameidview').val(obj["gameid"]);
+                      $('#accuracy').val(obj["accuracy"]);
+                      $('#change').val(obj["change"]);
+                      $('#count').val(obj["count"]);
+                      $('#maxdrawdown').val(obj["maxdrawdown"]);
+                      $('#partial').val(obj["partial"]);
+                      $('#peak').val(obj["peak"]);
+
+
+                  }
+                });
+              }
+
+        function next_step(t1, t2, update){
+          update = update ? 1: 0
+
+          $.ajax({
+            headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+            type: 'GET',
+            url: 'http://127.0.0.1:5000/hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update,
+            crossDomain: true,
+            beforeSend: function(xhr){
+                xhr.withCredentials = true;
+          },
+            success: function(data, textStatus, request){
+                data = JSON.parse(data);
+                $("#graph-image").attr('src', 'http://127.0.0.1:5000'+data["imgurl"]);
+                if(data["update"] == "1"){
+                  $('#Entry').val(data["close"]);
+                  entry = data["close"];
+                  $('#Target').val(data["close"]);
+                  target = data["close"];
+                  $('#sl').val(data["close"]);
+                  stoploss = data["close"];
+                }
+
+            }
+          });
+        }
+
+
+        $("#graph-history").click(function(){
+            $.ajax({
+              headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+              type: 'GET',
+              url: 'http://127.0.0.1:5000/hgraph/'+tradingsymbol+'/'+start.toString()+'/'+end.toString(),
+              crossDomain: true,
+              beforeSend: function(xhr){
+                  xhr.withCredentials = true;
+            },
+              success: function(data, textStatus, request){
+                  $("#graph-image").attr('src', 'http://127.0.0.1:5000'+data)
+              }
+            });
+        });
+
+
+        $('input[name="date-range"]').daterangepicker({
+            timePicker: true,
+            startDate: start,
+            endDate: end,
+            locale: {
+              format: 'DD/MM/YYYY hh:mm A'
+            }
+          }, function(start_date, end_date){
+            start = start_date
+            end = end_date
+            current = start_date.clone()
+            $('#current-date').val(current.toString())
+          });
+
+
+        $('#Next-Hour').on('click', function(){
+          if(leadhr < 2){
+            current = current.add(1, 'hour');
+            $('#current-date').val(current.toString());
+          }
+
+          var t1 = current.clone().subtract(lookback, "day").startOf('day').toString();
+          var t2 = current.toString();
+
+          next_step(t1, t2, true)
+
+          if(leadhr < 2){
+            leadhr = leadhr + 1;
+            $('#leadhr').val(leadhr);
+          }
+        });
+
+
+        $('#Review-Bet').on('click', function(){
+          var fwd = 1
+          var intraday = 1
+          var bint = buy ? 1: 0
+
+          var keyvar = {
+            "name": tradingsymbol,
+            "start": current.startOf('day').toString(),
+            "fwd": fwd,
+            "intraday": intraday,
+            "leadhr": leadhr,
+            "entry": entry,
+            "stoploss": stoploss,
+            "target": target,
+            "buy": bint,
+            "gameid": gameid
+          }
+
+          $.ajax({
+            headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+            type: 'POST',
+            data: keyvar,
+            url: 'http://127.0.0.1:5000/outcome',
+            crossDomain: true,
+            beforeSend: function(xhr){
+                xhr.withCredentials = true;
+          },
+            success: function(data, textStatus, request){
+                $("#Change").val(data.change)
+            }
+          });
+        });
+
+
+        $('#reveal').on('click', function(){
+          var t1 = current.clone().subtract(lookback, "day").startOf('day').toString();
+          var t2 = current.clone().add(17, "hour").toString();
+          next_step(t1, t2, false);
+          stats_refresh();
+        });
+
+
+        $('#Next-Day').click(function(){
+          var increment = 1
+          if (current.format('E') == 5){
+            increment = 3
+          } else if (current.format('E') == 6) {
+            increment = 2
+          }
+          current = current.add(increment, 'day').startOf('day').add(9, 'hour').add(14, 'minute');
+          leadhr = 0;
+          $('#current-date').val(current.toString());
+          $('#leadhr').val(leadhr);
+          $("#Change").val('undefined');
+          $('#Entry').val(0);
+          $('#sl').val(0);
+          $('#Target').val(0);
+          stats_refresh();
+        });
+
+        stats_refresh();
+
+      });
+    </script>
+  </body>
+</html>
