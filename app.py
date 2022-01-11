@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request, render_template
 from trader import get_historic_graph, bet_outcome, format_payload
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -18,6 +18,10 @@ app.config["MONGO_URI"] = 'mongodb://localhost:27017/moneyplant'
 app.json_encoder = CustomJSONEncoder
 mongo = PyMongo(app)
 CORS(app)
+
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.route('/hgraph/<name>/<start>/<end>/<update>')
 def historic_graph(name, start, end, update):
@@ -48,10 +52,20 @@ def outcome(*arg, **kwargs):
 
 @app.route('/stats/<gameid>')
 def stats(gameid):
-    docs = mongo.db.papertrading.find({"game-id": gameid})
-    docs = sorted(list(docs), key=lambda x: x["entry_time"])
-
+    docs = list(mongo.db.papertrading.find({"game-id": gameid}))
     resp = {"gameid": gameid}
+
+    if len(docs) == 0:
+        resp["accuracy"] = 0
+        resp["count"] = 0
+        resp["maxdrawdown"] = 0
+        resp["peak"] = 0
+        resp["change"] = 0
+        resp["partial"] = 0
+        return json.dumps(resp, default=str)
+
+    docs = sorted(docs, key=lambda x: x["entry_time"])
+
     change = np.array([_["change"] for _ in docs])
     ccum = change.cumsum()
 
@@ -59,7 +73,7 @@ def stats(gameid):
     resp["count"] = len(change)
     resp["maxdrawdown"] = round(min(0, min(ccum)), 2)
     resp["peak"] = round(max(0, max(ccum)), 2)
-    resp["change"] = sum(change)
+    resp["change"] = round(sum(change), 2)
     resp["partial"] = round(len([_ for _ in docs if _["partial"]])/len(change), 2)
     return json.dumps(resp, default=str)
 

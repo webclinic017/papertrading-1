@@ -14,13 +14,25 @@
         overflow: auto;
         min-height: 600px;
       }
+      .h-cross {
+        width: 100%;
+        height: 2px;
+        background-color: gray;
+        position: relative;
+        top: 50%;
+        visibility: hidden;
+        opacity: 0.5;
+      }
     </style>
     <title>Lumbinicapital Paper Trading Solutions</title>
   </head>
   <body>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-10 my-custom-scrollbar my-custom-scrollbar-primary">
+        <div class="col-sm-10" id="imgdiv">
+          <div class="h-cross">
+
+          </div>
           <img id="graph-image" src="http://127.0.0.1:5000/static/cat.jpeg" class="img img-style zoom"/>
         </div>
         <div class="col-sm-2">
@@ -100,7 +112,7 @@
                   </div>
                   <div class="col">
                     <label for="lookback" class="sr-only">Look Back(Days)</label>
-                    <input type="text" class="form-control" placeholder="lookback" id="lookback" value="3">
+                    <input type="text" class="form-control" placeholder="lookback" id="lookback" value="7">
                   </div>
                   <div class="col">
                     <label for="SL" class="sr-only">StopLoss</label>
@@ -182,9 +194,10 @@
         var entry = 0
         var stoploss = 0
         var target = 0
-        var lookback = 2
+        var lookback = 7
         var leadhr = 0
         var gameid = "unclassified"
+        var intervalvar = null
 
         $('#current-date').val(current.toString());
         $('#lookback').val(lookback);
@@ -205,6 +218,7 @@
               game_mode = false
             }
         })
+
 
         $("#buy").change(function(){
             if($(this).is(":checked")) {
@@ -235,7 +249,19 @@
         })
 
         $("#gameid").change(function(){
-          lookback = $(this).val()
+          gameid = $(this).val()
+        })
+
+        $('#imgdiv').on('mousemove', function(e){
+          $('div.h-cross').css('top', e.clientY);
+        })
+
+        $('#imgdiv').on('mouseenter', function(e){
+          $('div.h-cross').css('visibility', 'visible');
+        })
+
+        $('#imgdiv').on('mouseleave', function(e){
+          $('div.h-cross').css('visibility', 'hidden');
         })
 
 
@@ -290,20 +316,24 @@
           });
         }
 
+        function schedule_refresh(){
+          console.log('refreshing');
+          next_step(start.toString(), end.toString(), false)
+        }
+
+        $("#repeat").change(function(){
+            if($(this).is(":checked")) {
+              intervalvar = window.setInterval(schedule_refresh, 300000)
+              console.log("starting refresh");
+            } else {
+              window.clearInterval(intervalvar)
+              console.log('cleared refresh');
+            }
+        })
+
 
         $("#graph-history").click(function(){
-            $.ajax({
-              headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
-              type: 'GET',
-              url: 'http://127.0.0.1:5000/hgraph/'+tradingsymbol+'/'+start.toString()+'/'+end.toString(),
-              crossDomain: true,
-              beforeSend: function(xhr){
-                  xhr.withCredentials = true;
-            },
-              success: function(data, textStatus, request){
-                  $("#graph-image").attr('src', 'http://127.0.0.1:5000'+data)
-              }
-            });
+          next_step(start.toString(), end.toString(), false)
         });
 
 

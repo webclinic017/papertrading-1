@@ -7,7 +7,6 @@ ROOT_PATH = "/Users/kumargaurav/OneDrive - LumbiniCapital/work/Trading/"
 sys.path.append(os.path.join(ROOT_PATH, "moneyplantv3"))
 
 from moneyplantv3.common.broker import Broker
-import plotly.graph_objects as go
 from tlib.dataloader import get_data
 
 conf = {"DEFAULT.api_key": "cvhbtz7tf7qtpke0",
@@ -174,6 +173,7 @@ def adjust_date(start, end):
 
 def get_historic_graph(name, start, end):
     start, end = adjust_date(start, end)
+    print(start, end)
     df = fetch_data(name, start, end, span="30minute")
     last_close = df["close"].values[-1]
 
@@ -225,6 +225,7 @@ def get_historic_graph(name, start, end):
     # beautify
     ax.grid()
     _ = plt.xticks(ticks=xticks)
+    _ = plt.yticks(ticks=np.arange(ymin, ymax, last_close*0.002))
 
     rstr = [str(x) for x in list(range(10))]
     shuffle(rstr)

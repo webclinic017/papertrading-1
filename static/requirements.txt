@@ -1,0 +1,7 @@
+flask_cors
+flask
+flask_pymongo
+pymongo
+numpy
+pandas
+pathlib
