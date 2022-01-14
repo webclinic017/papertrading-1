@@ -233,6 +233,7 @@ def get_historic_graph(name, start, end):
     img_name = f"./static/temp/{img_name}.jpg"
     _ = [os.remove(fl) for fl in glob("./static/temp/*")]
     fig.savefig(img_name, bbox_inches='tight')
+    fig.close()
     return img_name[1:], last_close
 
 
