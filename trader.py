@@ -285,7 +285,7 @@ def bet_outcome(name, start, fwd, intraday, leadhr, entry, stoploss, target, buy
                 if active and value <= target:
                     outcome = 100 * (entry - target)/entry, False
                 elif active and value >= stoploss:
-                    outcome = 100 * (entry - StopLoss)/entry, False
+                    outcome = 100 * (entry - stoploss)/entry, False
             if active and (not outcome):
                 outcome = 100 * (entry - value)/entry, True
             elif not active:

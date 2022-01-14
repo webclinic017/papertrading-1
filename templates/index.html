@@ -29,7 +29,7 @@
   <body>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-10" id="imgdiv">
+        <div class="col-sm-10 my-custom-scrollbar" id="imgdiv">
           <div class="h-cross">
 
           </div>
@@ -125,6 +125,10 @@
                   <div class="col">
                     <label for="Target" class="sr-only">Target</label>
                     <input type="text" class="form-control" placeholder="Target" id="Target">
+                  </div>
+                  <div class="col">
+                    <label for="rrr" class="sr-only">RRR</label>
+                    <input type="text" class="form-control" placeholder="rrr" id="rrr">
                   </div>
                   <div class="col top-buffer">
                     <input class="form-check-input" type="checkbox" value="buy" id="buy" checked>
@@ -228,20 +232,30 @@
             }
         })
 
+        function rrr_refresh(){
+          var rrr = (parseFloat(target) - parseFloat(entry))/ (parseFloat(stoploss) - parseFloat(entry));
+          rrr = Math.abs(rrr)
+          rrr = rrr.toFixed(2)
+          $('#rrr').val(rrr);
+        }
+
         $("#tradingsymbol").change(function(){
           tradingsymbol = $(this).val()
         })
 
         $("#Entry").change(function(){
-          entry = $(this).val()
+          entry = $(this).val();
+          rrr_refresh();
         })
 
         $("#Target").change(function(){
           target = $(this).val()
+          rrr_refresh();
         })
 
         $("#sl").change(function(){
           stoploss = $(this).val()
+          rrr_refresh();
         })
 
         $("#lookback").change(function(){
@@ -310,6 +324,7 @@
                   target = data["close"];
                   $('#sl').val(data["close"]);
                   stoploss = data["close"];
+                  rrr_refresh();
                 }
 
             }
