@@ -2,8 +2,8 @@ import os
 import sys
 from copy import deepcopy
 from pathlib import Path
-
-ROOT_PATH = "/Users/kumargaurav/OneDrive - LumbiniCapital/work/Trading/"
+ROOT_PATH = "/".join(os.path.abspath(__file__).split("/")[:-2])
+print(ROOT_PATH)
 sys.path.append(os.path.join(ROOT_PATH, "moneyplantv3"))
 
 from moneyplantv3.common.broker import Broker
