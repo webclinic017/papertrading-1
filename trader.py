@@ -211,6 +211,9 @@ def get_historic_graph(name, start, end):
         sset = [_ for _ in mpm if _[2] == m[1]]
         ax.scatter(x=[_[0] for _ in sset], y=[_[1] for _ in sset], marker=m, s=60)
 
+    # last price marker
+    ax.scatter(x=[xticks[-1]+1], y=[last_close], marker="<", s=60)
+
     # Plot POCs and Value Zones
     for vz in values_zones:
         ax.add_patch( Rectangle((vz["x"], vz["y"]), vz["width"], vz["height"], alpha=0.1, color="green") )
