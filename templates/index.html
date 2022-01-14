@@ -76,6 +76,17 @@
               <input type="text" class="form-control" id="partial" readonly>
             </div>
           </div>
+          <div class="row">
+            <div class="col">
+              <textarea name="notes" rows="8" cols="80" placeholder="Notes" id="notes"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <button type="button" name="clear-note" class="btn btn-primary" id="clear-notes">Clear</button>
+            </div>
+
+          </div>
 
         </div>
       </div>
@@ -146,7 +157,7 @@
                     <input type="text" class="form-control", placeholder="Current Date" name="current-date" id="current-date" readonly>
                   </div>
                   <div class="col-sm-4">
-                    <label for="leadhr" class="sr-only">Lead Hour</label>
+                    <label for="leadhr" class="sr-only">TF Count</label>
                     <input type="text" class="form-control", placeholder="leadhr" name="leadhr" id="leadhr" readonly>
                   </div>
                   <div class="col-sm-4">
@@ -158,16 +169,16 @@
 
                 <div class="row top-buffer">
                   <div class="col">
-                    <button type="button" class="btn btn-primary" id="Next-Hour">Next Hour</button>
+                    <button type="button" class="btn btn-primary" id="Next-Hour">Next TimeFrame</button>
                   </div>
                   <div class="col">
                     <button type="button" class="btn btn-primary" id="Review-Bet">Review Bet</button>
                   </div>
                   <div class="col">
-                    <button type="button" class="btn btn-primary" id="Next-Day">Next Day</button>
+                    <button type="button" class="btn btn-primary" id="reveal">Reveal</button>
                   </div>
                   <div class="col">
-                    <button type="button" class="btn btn-primary" id="reveal">Reveal</button>
+                    <button type="button" class="btn btn-primary" id="Next-Day">Next Day</button>
                   </div>
 
                 </div>
@@ -280,6 +291,10 @@
 
         $('#imgdiv').on('mouseleave', function(e){
           $('div.h-cross').css('visibility', 'hidden');
+        })
+
+        #('#clear-notes').on('click' function(){
+          $('#notes').val('')
         })
 
 
