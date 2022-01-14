@@ -332,13 +332,13 @@
         }
 
         function schedule_refresh(){
-          console.log('refreshing');
+          // console.log('refreshing');
           next_step(start.toString(), end.toString(), false)
         }
 
         $("#repeat").change(function(){
             if($(this).is(":checked")) {
-              intervalvar = window.setInterval(schedule_refresh, 300000)
+              intervalvar = window.setInterval(schedule_refresh, 60000)
               console.log("starting refresh");
             } else {
               window.clearInterval(intervalvar)
