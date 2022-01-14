@@ -373,20 +373,16 @@
 
 
         $('#Next-Hour').on('click', function(){
-          if(leadhr < 2){
-            current = current.add(1, 'hour');
-            $('#current-date').val(current.toString());
-          }
+          current = current.add(30, 'minute');
+          $('#current-date').val(current.toString());
 
           var t1 = current.clone().subtract(lookback, "day").startOf('day').toString();
           var t2 = current.toString();
 
           next_step(t1, t2, true)
 
-          if(leadhr < 2){
-            leadhr = leadhr + 1;
-            $('#leadhr').val(leadhr);
-          }
+          leadhr = leadhr + 1;
+          $('#leadhr').val(leadhr);
         });
 
 
