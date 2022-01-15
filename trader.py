@@ -262,7 +262,7 @@ def bet_outcome(name, start, fwd, intraday, leadhr, entry, stoploss, target, buy
 
     if intraday:
         df = fetch_data(name, start, start+timedelta(hours=17), span="minute")
-        df = df[leadhr*60:]
+        df = df[leadhr*30:]
         close = df["close"].values
         # print(close)
 
