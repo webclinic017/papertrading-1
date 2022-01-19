@@ -35,7 +35,7 @@
           </div>
           <img id="graph-image" src="http://127.0.0.1:5000/static/cat.jpeg" class="img img-style zoom"/>
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-2" id="statdiv">
 
           <div class="row">
             <div class="col">
@@ -231,10 +231,17 @@
         $("#game-mode").change(function(){
             if($(this).is(":checked")) {
               $('#game-control').show()
+              $('#statdiv').show()
+              $('#imgdiv').attr('class', 'col-sm-10 my-custom-scrollbar')
+              $('.my-custom-scrollbar').css('min-height', '580px')
               game_mode = true
             } else {
               $('#game-control').hide()
               game_mode = false
+              $('#statdiv').hide()
+              $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar')
+              $('.my-custom-scrollbar').css('min-height', '700px')
+
             }
         })
 
