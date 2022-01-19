@@ -234,7 +234,7 @@ def get_historic_graph(name, start, end):
     shuffle(rstr)
     img_name = f"{name}-{''.join(rstr)}"
     img_name = f"./static/temp/{img_name}.jpg"
-    _ = [os.remove(fl) for fl in glob("./static/temp/*")]
+    _ = [os.remove(fl) for fl in glob(f"./static/temp/{name}-*")]
     fig.savefig(img_name, bbox_inches='tight')
     plt.close(fig)
     return img_name[1:], last_close
