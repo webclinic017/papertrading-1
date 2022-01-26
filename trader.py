@@ -105,6 +105,50 @@ def find_range(xval, low, high):
             break
     return lindex, hindex
 
+def rotation_score(spread, mp):
+    mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
+    mpt.loc[mpt["mark"] == "O", "mark"] = ["A"]
+    if mpt["mark"].unique().shape[0] < 3:
+        return -1000
+
+    mpt = mpt.groupby("mark").agg({"price": ["max", "min"]}).reset_index(drop=False)
+    mpt.columns = ["mark", "max", "min"]
+    mpt = mpt.sort_values("mark")
+    mpt["pmax"] = mpt["max"].shift(1)
+    mpt["pmin"] = mpt["min"].shift(1)
+    mpt = mpt.dropna()
+    mpt["dmax"] = (mpt["max"] - mpt["pmax"])
+    mpt["dmin"] = (mpt["min"] - mpt["pmin"])
+    mpt["hscore"] = [0 if abs(mpt.loc[i, "dmax"]) < spread else abs(mpt.loc[i, "dmax"])/mpt.loc[i, "dmax"] for i in mpt.index]
+    mpt["lscore"] = [0 if abs(mpt.loc[i, "dmin"]) < spread else abs(mpt.loc[i, "dmin"])/mpt.loc[i, "dmin"] for i in mpt.index]
+    mpt["score"] = mpt["hscore"] + mpt["lscore"]
+    mpt["cscore"] = mpt["score"].cumsum()
+    return mpt["cscore"].values[-1]
+
+def extension_score(mp):
+    mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
+    mpt.loc[mpt["mark"] == "O", "mark"] = ["A"]
+    if mpt["mark"].unique().shape[0] < 3:
+        return -1000, -1000
+
+    mpt = mpt.groupby("mark").agg({"price": ["max", "min"]}).reset_index(drop=False)
+    mpt.columns = ["mark", "max", "min"]
+    mpt = mpt.sort_values("mark")
+
+    def get_crange(series, maxv=True):
+        a = series[0]
+        new_series = [a]
+        for i in series[1:]:
+            if (maxv and i > a) | ((not maxv) and i < a):
+                a = i
+            new_series.append(a)
+        return new_series
+    mpt["rh"] = get_crange(mpt["max"], maxv=True)
+    mpt["rl"] = get_crange(mpt["min"], maxv=False)
+    mpt["uext"] = mpt["rh"].rolling(2).apply(lambda x: int(x[0] != x[1]), raw=True).fillna(0).cumsum()
+    mpt["dext"] = mpt["rl"].rolling(2).apply(lambda x: int(x[0] != x[1]), raw=True).fillna(0).cumsum()
+    return mpt["uext"].values[-1], mpt["dext"].values[-1]
+
 
 def x_axis_market_profile(one, tol=0.001):
     ulimit, llimit = one["high"].max(), one["low"].min()
@@ -169,14 +213,14 @@ def adjust_date(start, end):
             rdays += 1
     return end, oend
 
-
-
-def get_historic_graph(name, start, end):
+def data(name, start, end):
     start, end = adjust_date(start, end)
-    print(start, end)
     df = fetch_data(name, start, end, span="30minute")
     last_close = df["close"].values[-1]
+    return df, last_close
 
+
+def calculate_value_zones(df):
     BASE = 0
     GAP = 1
     mpm = []
@@ -185,7 +229,6 @@ def get_historic_graph(name, start, end):
 
     for k, day in enumerate(df["day"].unique()):
         one = df[df["day"] == day].reset_index(drop=True)
-
         # calculte x-axis from final day price
         xval, spread = x_axis_market_profile(one, tol=0.001)
 
@@ -193,43 +236,74 @@ def get_historic_graph(name, start, end):
             # select a subset of x-axis for part day
             subxval = x_axis_subset(xval, subone)
             mp, m_len, vzones = market_profile(subone, spread, xval=subxval, base=BASE)
+            vzones["rscore"] = rotation_score(spread, mp)
+            vzones["uext"], vzones["dext"] = extension_score(mp)
             mpm += mp
             BASE += (m_len + GAP)
             xticks.append(BASE)
             values_zones.append(vzones)
     values_zones = open_type_annotation(values_zones, skip=3)
 
+    # Y-TICKS
     yticks = [_[1] for _ in mpm]
     ymax, ymin = max(yticks), min(yticks)
     yticks = int(1000 * (ymax - ymin)/ymin)
 
-    fig, ax = plt.subplots(1, 1, figsize=(int(BASE*0.2), int(yticks*0.3)))
+    return values_zones, mpm, xticks, yticks, ymax, ymin, BASE
 
+
+def render_market_profile(ax, mpm):
     # Plot MARKET PROFILE
     um = set([f"${_[2]}$" for _ in mpm])
     for m in um:
         sset = [_ for _ in mpm if _[2] == m[1]]
         ax.scatter(x=[_[0] for _ in sset], y=[_[1] for _ in sset], marker=m, s=60)
 
-    # last price marker
+
+def render_last_price(ax, xticks, last_close):
     ax.scatter(x=[xticks[-1]+1], y=[last_close], marker="<", s=60)
 
+
+def render_pocs(ax, values_zones):
     # Plot POCs and Value Zones
     for vz in values_zones:
         ax.add_patch( Rectangle((vz["x"], vz["y"]), vz["width"], vz["height"], alpha=0.1, color="green") )
         ax.add_patch( Rectangle((vz["x"], vz["poc-price"]), vz["width"], vz["poc-price"]*0.0001, alpha=0.8, color="red") )
 
+
+def render_open_type(ax, values_zones):
     # Plot OPEN-TYPE
+    ofclolor = {"IN-VALUE": "lime", "IN-RANGE": "yellow", "OUTSIDE": "orangered"}
     for vz in values_zones:
         if "open-type" in vz:
-            ax.text(vz["x"], vz["dhigh"]*1.002, vz["open-type"], style='normal', color="black",
-                bbox={'facecolor': 'yellow', 'alpha': 0.5, 'pad': 4})
+            fcolor = ofclolor[vz["open-type"]]
+            ax.text(vz["x"]+3, vz["dhigh"]*1.002, vz["open-type"], style='normal', color="black", size="x-large",
+                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
 
+def render_rscore(ax, values_zones):
+    for vz in values_zones[2::3]:
+        if "rscore" in vz and vz["rscore"] != -1000:
+            fcolor = "yellow" if abs(vz["rscore"]) < 3 else ("lime" if vz["rscore"] >= 3 else "orangered")
+            ax.text(vz["x"]-5, vz["dlow"]*0.996, f"Rotation {vz['rscore']}", style='normal', color="black", size="x-large",
+                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
+
+def render_extension(ax, values_zones):
+    for vz in values_zones[2::3]:
+        if "uext" in vz and vz["uext"] != -1000:
+            fcolor = "yellow" if abs(vz["uext"] - vz["dext"]) < 2 else ("lime" if vz["uext"] > vz["dext"] else "orangered")
+
+            ax.text(vz["x"]-5, vz["dlow"]*0.994, f"UE {vz['uext']} | DE {vz['dext']}", style='normal', color="black", size="x-large",
+                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
+
+
+def beautify_graph(ax, xticks, ymin, ymax, last_close):
     # beautify
     ax.grid()
     _ = plt.xticks(ticks=xticks)
     _ = plt.yticks(ticks=np.arange(ymin, ymax, last_close*0.002))
 
+
+def save_image(fig, name):
     rstr = [str(x) for x in list(range(10))]
     shuffle(rstr)
     img_name = f"{name}-{''.join(rstr)}"
@@ -237,6 +311,22 @@ def get_historic_graph(name, start, end):
     _ = [os.remove(fl) for fl in glob(f"./static/temp/{name}-*")]
     fig.savefig(img_name, bbox_inches='tight')
     plt.close(fig)
+    return img_name
+
+
+def get_historic_graph(name, start, end):
+    df, last_close = data(name, start, end)
+    values_zones, mpm, xticks, yticks, ymax, ymin, BASE = calculate_value_zones(df)
+
+    fig, ax = plt.subplots(1, 1, figsize=(int(BASE*0.2), int(yticks*0.3)))
+    render_market_profile(ax, mpm)
+    render_last_price(ax, xticks, last_close)
+    render_pocs(ax, values_zones)
+    render_open_type(ax, values_zones)
+    render_rscore(ax, values_zones)
+    render_extension(ax, values_zones)
+    beautify_graph(ax, xticks, ymin, ymax, last_close)
+    img_name = save_image(fig, name)
     return img_name[1:], last_close
 
 
