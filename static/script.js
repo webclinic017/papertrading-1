@@ -1,7 +1,8 @@
 $(function(){
+  var img = new Image();
 
-  var end = moment().startOf('day').add(21, 'hour').add(14, 'minute');
-  var start = end.clone().subtract(5, 'day').subtract(12, 'hour');
+  var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
+  var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
   var current = start.clone();
   var tradingsymbol = 'NIFTY 50'
   var refresh = false
@@ -41,6 +42,25 @@ $(function(){
 
       }
   })
+
+  $("#game-stats").change(function(){
+      if($(this).is(":checked")) {
+        $('#statdiv').show()
+        $('#imgdiv').attr('class', 'col-sm-10 my-custom-scrollbar')
+      } else {
+        $('#statdiv').hide()
+        $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar')
+      }
+  })
+
+  img.onload = function() {
+    console.log(this.width + 'x' + this.height);
+    height = parseInt(this.height);
+    width = parseInt(this.width);
+    var maxheight = parseInt($(".img-style").css('max-height'));
+    var newwidth = maxheight > height ? width : width * (maxheight/height);
+    $('div.h-cross').css('width', newwidth + "px");
+  }
 
 
   $("#buy").change(function(){
@@ -105,7 +125,7 @@ $(function(){
           $.ajax({
             headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
             type: 'GET',
-            url: 'http://127.0.0.1:5000/stats/'+gameid,
+            url: 'stats/'+gameid,
             crossDomain: true,
             beforeSend: function(xhr){
                 xhr.withCredentials = true;
@@ -131,14 +151,15 @@ $(function(){
     $.ajax({
       headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
       type: 'GET',
-      url: 'http://127.0.0.1:5000/hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update,
+      url: 'hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update,
       crossDomain: true,
       beforeSend: function(xhr){
           xhr.withCredentials = true;
     },
       success: function(data, textStatus, request){
           data = JSON.parse(data);
-          $("#graph-image").attr('src', 'http://127.0.0.1:5000'+data["imgurl"]);
+          $("#graph-image").attr('src', data["imgurl"]);
+          img.src = data["imgurl"];
           if(data["update"] == "1"){
             $('#Entry').val(data["close"]);
             entry = data["close"];
@@ -171,7 +192,8 @@ $(function(){
 
 
   $("#graph-history").click(function(){
-    next_step(start.toString(), end.toString(), false)
+    next_step(start.toString(), end.toString(), false);
+    $(document).prop('title', tradingsymbol + " | Lumbinicapital");
   });
 
 
@@ -200,6 +222,7 @@ $(function(){
     next_step(t1, t2, true)
 
     leadhr = leadhr + 1;
+    $(document).prop('title', tradingsymbol + " | Lumbinicapital");
     $('#leadhr').val(leadhr);
   });
 
@@ -226,7 +249,7 @@ $(function(){
       headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
       type: 'POST',
       data: keyvar,
-      url: 'http://127.0.0.1:5000/outcome',
+      url: 'outcome',
       crossDomain: true,
       beforeSend: function(xhr){
           xhr.withCredentials = true;
@@ -261,6 +284,7 @@ $(function(){
     $('#Entry').val(0);
     $('#sl').val(0);
     $('#Target').val(0);
+    $(document).prop('title', tradingsymbol + " | Lumbinicapital");
     stats_refresh();
   });
 
@@ -279,9 +303,11 @@ $(function(){
     $('#Entry').val(0);
     $('#sl').val(0);
     $('#Target').val(0);
+    $(document).prop('title', tradingsymbol + " | Lumbinicapital");
     stats_refresh();
   });
 
   stats_refresh();
+
 
 });

@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for, request, render_template
-from trader import get_historic_graph, bet_outcome, format_payload
+from trader import get_historic_graph, bet_outcome, format_payload, merge_output
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from flask.json import JSONEncoder
@@ -27,8 +27,12 @@ def home():
 def historic_graph(name, start, end, update):
     start = datetime.strptime(start, '%a %b %d %Y %H:%M:%S %Z%z').replace(tzinfo=None)
     end = datetime.strptime(end, '%a %b %d %Y %H:%M:%S %Z%z').replace(tzinfo=None)
-    fpath, last_close = get_historic_graph(name, start, end)
-    return json.dumps({"imgurl": fpath, "close": last_close, "update": update}, default=str)
+    outcome = []
+    for nm in name.split(","):
+        fpath, last_close = get_historic_graph(nm, start, end)
+        outcome.append((fpath, last_close))
+    outcome = merge_output(outcome)
+    return json.dumps({"imgurl": outcome[0][0], "close": outcome[0][1], "update": update}, default=str)
 
 @app.route('/outcome', methods=["POST"])
 def outcome(*arg, **kwargs):
@@ -78,4 +82,4 @@ def stats(gameid):
     return json.dumps(resp, default=str)
 
 if __name__ == '__main__':
-   app.run(debug = False, host='127.0.0.1')
+   app.run(debug = True, host='127.0.0.1')

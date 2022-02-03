@@ -2,6 +2,7 @@ import os
 import sys
 from copy import deepcopy
 from pathlib import Path
+from PIL import Image
 ROOT_PATH = "/".join(os.path.abspath(__file__).split("/")[:-2])
 print(ROOT_PATH)
 sys.path.append(os.path.join(ROOT_PATH, "moneyplantv3"))
@@ -296,9 +297,10 @@ def render_extension(ax, values_zones):
                 bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
 
 
-def beautify_graph(ax, xticks, ymin, ymax, last_close):
+def beautify_graph(name, ax, xticks, ymin, ymax, last_close):
     # beautify
     ax.grid()
+    ax.set_title(name)
     _ = plt.xticks(ticks=xticks)
     _ = plt.yticks(ticks=np.arange(ymin, ymax, last_close*0.002))
 
@@ -325,10 +327,54 @@ def get_historic_graph(name, start, end):
     render_open_type(ax, values_zones)
     render_rscore(ax, values_zones)
     render_extension(ax, values_zones)
-    beautify_graph(ax, xticks, ymin, ymax, last_close)
+    beautify_graph(f"{name} | {str(start)} | {str(end)}", ax, xticks, ymin, ymax, last_close)
     img_name = save_image(fig, name)
     return img_name[1:], last_close
 
+def concat_images(imga, imgb):
+    """
+    Combines two color image ndarrays side-by-side.
+    """
+    ha,wa = imga.shape[:2]
+    hb,wb = imgb.shape[:2]
+    max_height = np.max([ha, hb])
+    total_width = wa+wb
+    new_img = np.ones(shape=(max_height, total_width, 3))*255
+    new_img[:ha,:wa]=imga
+    new_img[:hb,wa:wa+wb]=imgb
+    return new_img
+
+def concat_n_images(image_path_list):
+    """
+    Combines N color images from a list of image paths.
+    """
+    output = None
+    for i, img_path in enumerate(image_path_list):
+        img = plt.imread(img_path)[:,:,:3]
+        if i==0:
+            output = img
+        else:
+            output = concat_images(output, img)
+    return output.astype(np.uint8)
+
+def merge_output(outcome):
+    if len(outcome) == 1:
+        return outcome
+
+    images = ["."+oc[0] for oc in outcome]
+    last_closes = [oc[1] for oc in outcome][0]
+    output = concat_n_images(images)
+    im = Image.fromarray(output)
+
+    name = "-".join([x.split("/")[-1].split(".")[0].split("-")[0] for x in images])
+    _ = [os.remove(fl) for fl in glob(f"./static/temp/{name}-*")]
+    rstr = [str(x) for x in list(range(10))]
+    shuffle(rstr)
+    img_name = f"{name}-{''.join(rstr)}"
+    img_name = f"./static/temp/{img_name}.jpg"
+    im.save(img_name)
+
+    return [(img_name, last_closes)]
 
 def format_payload(name, start, intraday, entry, stoploss, target, buy, gameid, change, partial):
     document = {
