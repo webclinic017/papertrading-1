@@ -107,23 +107,26 @@ def find_range(xval, low, high):
     return lindex, hindex
 
 def rotation_score(spread, mp):
-    mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
-    mpt.loc[mpt["mark"] == "O", "mark"] = ["A"]
-    if mpt["mark"].unique().shape[0] < 3:
-        return -1000
+    try:
+        mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
+        mpt.loc[mpt["mark"] == "O", "mark"] = ["A"]
+        if mpt["mark"].unique().shape[0] < 3:
+            return -1000
 
-    mpt = mpt.groupby("mark").agg({"price": ["max", "min"]}).reset_index(drop=False)
-    mpt.columns = ["mark", "max", "min"]
-    mpt = mpt.sort_values("mark")
-    mpt["pmax"] = mpt["max"].shift(1)
-    mpt["pmin"] = mpt["min"].shift(1)
-    mpt = mpt.dropna()
-    mpt["dmax"] = (mpt["max"] - mpt["pmax"])
-    mpt["dmin"] = (mpt["min"] - mpt["pmin"])
-    mpt["hscore"] = [0 if abs(mpt.loc[i, "dmax"]) < spread else abs(mpt.loc[i, "dmax"])/mpt.loc[i, "dmax"] for i in mpt.index]
-    mpt["lscore"] = [0 if abs(mpt.loc[i, "dmin"]) < spread else abs(mpt.loc[i, "dmin"])/mpt.loc[i, "dmin"] for i in mpt.index]
-    mpt["score"] = mpt["hscore"] + mpt["lscore"]
-    mpt["cscore"] = mpt["score"].cumsum()
+        mpt = mpt.groupby("mark").agg({"price": ["max", "min"]}).reset_index(drop=False)
+        mpt.columns = ["mark", "max", "min"]
+        mpt = mpt.sort_values("mark")
+        mpt["pmax"] = mpt["max"].shift(1)
+        mpt["pmin"] = mpt["min"].shift(1)
+        mpt = mpt.dropna()
+        mpt["dmax"] = (mpt["max"] - mpt["pmax"])
+        mpt["dmin"] = (mpt["min"] - mpt["pmin"])
+        mpt["hscore"] = [0 if abs(mpt.loc[i, "dmax"]) < spread else abs(mpt.loc[i, "dmax"])/mpt.loc[i, "dmax"] for i in mpt.index]
+        mpt["lscore"] = [0 if abs(mpt.loc[i, "dmin"]) < spread else abs(mpt.loc[i, "dmin"])/mpt.loc[i, "dmin"] for i in mpt.index]
+        mpt["score"] = mpt["hscore"] + mpt["lscore"]
+        mpt["cscore"] = mpt["score"].cumsum()
+    except Exception as e:
+        return -1000
     return mpt["cscore"].values[-1]
 
 def extension_score(mp):
