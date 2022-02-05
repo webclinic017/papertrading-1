@@ -111,7 +111,7 @@ def rotation_score(spread, mp):
         mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
         mpt.loc[mpt["mark"] == "O", "mark"] = ["A"]
         if mpt["mark"].unique().shape[0] < 3:
-            return -1000
+            return -1000, -1000
 
         mpt = mpt.groupby("mark").agg({"price": ["max", "min"]}).reset_index(drop=False)
         mpt.columns = ["mark", "max", "min"]
@@ -126,8 +126,8 @@ def rotation_score(spread, mp):
         mpt["score"] = mpt["hscore"] + mpt["lscore"]
         mpt["cscore"] = mpt["score"].cumsum()
     except Exception as e:
-        return -1000
-    return mpt["cscore"].values[-1]
+        return -1000, -1000
+    return mpt["cscore"].values[-1], mpt["cscore"].max()
 
 def extension_score(mp):
     mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
@@ -240,7 +240,7 @@ def calculate_value_zones(df):
             # select a subset of x-axis for part day
             subxval = x_axis_subset(xval, subone)
             mp, m_len, vzones = market_profile(subone, spread, xval=subxval, base=BASE)
-            vzones["rscore"] = rotation_score(spread, mp)
+            vzones["rscore"], vzones["rscore-max"] = rotation_score(spread, mp)
             vzones["uext"], vzones["dext"] = extension_score(mp)
             mpm += mp
             BASE += (m_len + GAP)
@@ -281,14 +281,14 @@ def render_open_type(ax, values_zones):
     for vz in values_zones:
         if "open-type" in vz:
             fcolor = ofclolor[vz["open-type"]]
-            ax.text(vz["x"]+3, vz["dhigh"]*1.002, vz["open-type"], style='normal', color="black", size="x-large",
+            ax.text(vz["x"], vz["dhigh"]*1.002, vz["open-type"], style='normal', color="black", size="x-large",
                 bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
 
 def render_rscore(ax, values_zones):
     for vz in values_zones[2::3]:
         if "rscore" in vz and vz["rscore"] != -1000:
             fcolor = "yellow" if abs(vz["rscore"]) < 3 else ("lime" if vz["rscore"] >= 3 else "orangered")
-            ax.text(vz["x"]-5, vz["dlow"]*0.996, f"Rotation {vz['rscore']}", style='normal', color="black", size="x-large",
+            ax.text(vz["x"]-5, vz["dlow"]*0.996, f"Rotation {vz['rscore']} ({vz['rscore-max']})", style='normal', color="black", size="x-large",
                 bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
 
 def render_extension(ax, values_zones):
