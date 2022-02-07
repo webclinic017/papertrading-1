@@ -22,7 +22,7 @@ $(document).ready(function() {
 
       $("#refresh").on("click", function(){
         $("#status").val("Fetching...")
-        score.rows().remove().draw();
+        rscore.rows().remove().draw();
         stats_data();
       })
 });
