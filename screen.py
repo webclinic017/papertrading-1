@@ -15,7 +15,9 @@ def rscore_screener(vz):
             rsmin,
             rsmax,
             rsmax - rs,
-            rs - rsmin
+            rs - rsmin,
+            vz[s]["uext"],
+            vz[s]["dext"]
         ])
     return rscore
 
