@@ -12,7 +12,6 @@ $(document).ready(function() {
             },
               success: function(data, textStatus, request){
                   const obj = JSON.parse(data);
-                  rscore.rows().remove().draw();
                   for (let i = 0; i < obj["rscore"].length; i++) {
                     rscore.row.add(obj["rscore"][i]).draw( false );
                   }
@@ -23,6 +22,7 @@ $(document).ready(function() {
 
       $("#refresh").on("click", function(){
         $("#status").val("Fetching...")
+        score.rows().remove().draw();
         stats_data();
       })
 });
