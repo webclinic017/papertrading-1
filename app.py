@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template
 from trader import get_historic_graph, bet_outcome, format_payload, merge_output
+from screen import screener_data
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from flask.json import JSONEncoder
@@ -22,6 +23,14 @@ CORS(app)
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/screener")
+def screener_home():
+    return render_template("screener.html")
+
+@app.route("/ss")
+def ss():
+    return json.dumps(screener_data())
 
 @app.route('/hgraph/<name>/<start>/<end>/<update>')
 def historic_graph(name, start, end, update):

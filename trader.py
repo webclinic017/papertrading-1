@@ -35,7 +35,7 @@ def s2o(dte):
     return datetime.strptime(dte, '%a %b %d %Y %H:%M:%S %Z%z')
 
 def fetch_data(symbol, start, end, span="minute"):
-    data = get_data(bk, start=start, end=end, span=span, names=[symbol], predef=None)
+    data = get_data(bk, start=start, end=end, span=span, names=[symbol] if type(symbol) == str else symbol, predef=None)
     data["datetime"] = [x.replace(tzinfo=None) for x in data["datetime"]]
     data["day"] = [x.date() for x in data["datetime"]]
     data["std"] = (data["high"] - data["low"])/4
