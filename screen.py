@@ -21,10 +21,9 @@ def rscore_screener(vz):
         ])
     return rscore
 
-def screener_data(start=None, end=None):
-    if start is None:
+def screener_data(end=None):
+    if end is None:
         end = str(datetime.now().date())
-    logging.info(end)
     df = fetch_data(STOCKS, f"{end} 09:00:00", f"{end} 16:00:00", span="30minute")
     vz = {}
 

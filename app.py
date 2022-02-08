@@ -28,9 +28,9 @@ def home():
 def screener_home():
     return render_template("screener.html")
 
-@app.route("/ss")
-def ss():
-    return json.dumps(screener_data())
+@app.route("/ss/<end_date>")
+def ss(end_date):
+    return json.dumps(screener_data(end_date))
 
 @app.route('/hgraph/<name>/<start>/<end>/<update>')
 def historic_graph(name, start, end, update):

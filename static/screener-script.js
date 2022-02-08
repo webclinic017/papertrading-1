@@ -1,11 +1,17 @@
 $(document).ready(function() {
     var rscore = $('#rscore').DataTable();
+    var date = moment().startOf('day').format('YYYY-MM-DD');
+    $('#date').val(date.toString());
+    $("#date").change(function(){
+      date = $(this).val()
+      console.log(date);
+    })
 
     function stats_data(){
             $.ajax({
               headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
               type: 'GET',
-              url: 'ss',
+              url: 'ss'+"/"+date,
               crossDomain: true,
               beforeSend: function(xhr){
                   xhr.withCredentials = true;
