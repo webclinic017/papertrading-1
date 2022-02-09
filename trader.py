@@ -109,7 +109,7 @@ def find_range(xval, low, high):
 def rotation_score(spread, mp):
     try:
         mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
-        mpt.loc[mpt["mark"] == "O", "mark"] = "A"
+        mpt.loc[mpt["mark"].isin(["O"]), "mark"] = "A"
         if mpt["mark"].unique().shape[0] < 3:
             return -1000, -1000, -1000
 
@@ -131,7 +131,7 @@ def rotation_score(spread, mp):
 
 def extension_score(mp):
     mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
-    mpt.loc[mpt["mark"] == "O", "mark"] = "A"
+    mpt.loc[mpt["mark"].isin(["O", "B"]), "mark"] = "A"
     if mpt["mark"].unique().shape[0] < 3:
         return -1000, -1000
 
