@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for, request, render_template
-from trader import get_historic_graph, bet_outcome, format_payload, merge_output
+from trader import get_historic_graph, bet_outcome, format_payload, merge_output, get_volume_data
 from screen import screener_data
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -32,15 +32,23 @@ def screener_home():
 def ss(end_date):
     return json.dumps(screener_data(end_date))
 
-@app.route('/hgraph/<name>/<start>/<end>/<update>')
-def historic_graph(name, start, end, update):
+@app.route('/hgraph/<name>/<start>/<end>/<update>/<tick_mode>/<lead>')
+def historic_graph(name, start, end, update, tick_mode, lead):
     start = datetime.strptime(start, '%a %b %d %Y %H:%M:%S %Z%z').replace(tzinfo=None)
     end = datetime.strptime(end, '%a %b %d %Y %H:%M:%S %Z%z').replace(tzinfo=None)
+    tick_mode = int(tick_mode)
+    lead = float(lead)
+    if lead == 0:
+        lead = None
+
     outcome = []
-    for nm in name.split(","):
-        fpath, last_close = get_historic_graph(nm, start, end)
-        outcome.append((fpath, last_close))
-    outcome = merge_output(outcome)
+    if tick_mode  == 0 or len(name.split(",")) > 1:
+        for nm in name.split(","):
+            fpath, last_close = get_historic_graph(nm, start, end)
+            outcome.append((fpath, last_close))
+        outcome = merge_output(outcome)
+    else:
+        outcome = get_volume_data(name, end, lead)
     return json.dumps({"imgurl": outcome[0][0], "close": outcome[0][1], "update": update}, default=str)
 
 @app.route('/outcome', methods=["POST"])

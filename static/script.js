@@ -4,7 +4,7 @@ $(function(){
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
   var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
   var current = start.clone();
-  var tradingsymbol = 'NIFTY 50'
+  var tradingsymbol = 'NIFTY 50,RELIANCE,HDFCBANK'
   var refresh = false
   var game_mode = false
   var buy = true
@@ -15,6 +15,7 @@ $(function(){
   var leadhr = 0
   var gameid = "unclassified"
   var intervalvar = null
+  var tick_mode = false
 
   $('#current-date').val(current.toString());
   $('#lookback').val(lookback);
@@ -23,6 +24,12 @@ $(function(){
   $('#Entry').val(entry);
   $('#Target').val(target);
   $('#leadhr').val(leadhr);
+
+  // clear ui
+  $('#game-control').hide();
+  $('#statdiv').hide();
+  $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar');
+  $('.my-custom-scrollbar').css('min-height', '700px');
   // wheelzoom(document.querySelector('img.zoom'));
 
 
@@ -50,6 +57,18 @@ $(function(){
       } else {
         $('#statdiv').hide()
         $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar')
+      }
+  })
+
+  $("#tick-mode").change(function(){
+      if($(this).is(":checked")) {
+        tick_mode = true
+        $("#tradingsymbol").val("RELIANCE");
+        tradingsymbol = "RELIANCE"
+      } else {
+        tick_mode = false
+        $("#tradingsymbol").val("NIFTY 50,RELIANCE,HDFCBANK");
+        tradingsymbol = "NIFTY 50,RELIANCE,HDFCBANK"
       }
   })
 
@@ -139,19 +158,19 @@ $(function(){
                 $('#maxdrawdown').val(obj["maxdrawdown"]);
                 $('#partial').val(obj["partial"]);
                 $('#peak').val(obj["peak"]);
-
-
             }
           });
         }
 
   function next_step(t1, t2, update){
     update = update ? 1: 0
+    tm = tick_mode ? 1: 0
+    lead = $("#lead").val()
 
     $.ajax({
       headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
       type: 'GET',
-      url: 'hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update,
+      url: 'hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update+"/"+tm+"/"+lead,
       crossDomain: true,
       beforeSend: function(xhr){
           xhr.withCredentials = true;
@@ -170,6 +189,9 @@ $(function(){
             rrr_refresh();
           }
 
+      },
+      error: function(error){
+        alert("Error, Failed to load graph")
       }
     });
   }

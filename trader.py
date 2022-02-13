@@ -3,6 +3,8 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 from PIL import Image
+from tick import render_graph
+
 ROOT_PATH = "/".join(os.path.abspath(__file__).split("/")[:-2])
 print(ROOT_PATH)
 sys.path.append(os.path.join(ROOT_PATH, "moneyplantv3"))
@@ -333,6 +335,20 @@ def get_historic_graph(name, start, end):
     beautify_graph(f"{name} | {str(start)} | {str(end)}", ax, xticks, ymin, ymax, last_close)
     img_name = save_image(fig, name)
     return img_name[1:], last_close
+
+
+def get_volume_data(nm, end, lead=None):
+    img = render_graph(nm, end, lead)
+    im = Image.fromarray(img)
+
+    _ = [os.remove(fl) for fl in glob(f"./static/temp/{nm}-tick-*")]
+    rstr = [str(x) for x in list(range(10))]
+    shuffle(rstr)
+    img_name = f"{nm}-tick-{''.join(rstr)}"
+    img_name = f"./static/temp/{img_name}.jpg"
+    im.save(img_name)
+    return [(img_name[1:], 0)]
+
 
 def concat_images(imga, imgb):
     """
