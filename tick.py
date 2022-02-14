@@ -84,8 +84,8 @@ def process_ticks(nm, end, lead):
 
         for p, q in scol:
             update_dict(spq_map, anchor.loc[i, p], anchor.loc[i, q])
-    bpq_map = filter_by_per(list(bpq_map.items()), 95)
-    spq_map = filter_by_per(list(spq_map.items()), 95)
+    bpq_map = filter_by_per(list(bpq_map.items()), 90)
+    spq_map = filter_by_per(list(spq_map.items()), 90)
     return anchor, bpq_map, spq_map
 
 def process_volume(anchor):
