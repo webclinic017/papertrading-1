@@ -18,13 +18,13 @@ def flatten(a):
 
     for k, p in enumerate(buy):
         a[f"bq{k}"] = p["quantity"]
-        a[f"bp{k}"] = a["last_price"] - p["price"]
+        a[f"bp{k}"] = p["price"]
         a[f"bpa{k}"] = p["price"]
         a[f"bo{k}"] = p["orders"]
 
     for k, p in enumerate(sell):
         a[f"sq{k}"] = p["quantity"]
-        a[f"sp{k}"] = p["price"] - a["last_price"]
+        a[f"sp{k}"] = p["price"]
         a[f"spa{k}"] = p["price"]
         a[f"so{k}"] = p["orders"]
     return a
@@ -62,30 +62,53 @@ def fetch_data(name, d, lead):
 def process_ticks(nm, end, lead):
     year, month, day = end.year, end.month, end.day
     anchor = fetch_data(f"NSE:{nm}", datetime.datetime(year, month, day, 9, 15, 1), lead)
-    bq = anchor[["bq0", "bq1", "bq2", "bq3", "bq4"]].values.reshape(-1)
-    sq = anchor[["sq0", "sq1", "sq2", "sq3", "sq4"]].values.reshape(-1)
-    bp, sp = np.percentile(bq, 99), np.percentile(sq, 99)
+    bpq_map = {}
+    spq_map = {}
 
-    bcdf, scdf = None, None
-    rb = 1
+    def update_dict(dct, key, val):
+        if key not in dct:
+            dct[key] = (val, 1)
+        elif dct[key][0] < val:
+            dct[key] = (val, dct[key][1]+1)
 
-    for c1, c2 in [("bq1", "sq1"), ("bq2", "sq2"), ("bq3", "sq3"), ("bq4", "sq4")]:
-        if bcdf is None:
-            bcdf = anchor[anchor[c1] > bp]
-            scdf = anchor[anchor[c2] > sp]
-        else:
-            bcdf = pd.concat([bcdf, anchor[anchor[c1] > bp]])
-            scdf = pd.concat([scdf, anchor[anchor[c2] > sp]])
+    def filter_by_per(tpl, per):
+        cutoff = np.percentile([_[1][0] for _ in tpl], per)
+        return [_ for _ in tpl if _[1][0] > cutoff]
 
-    bcdf["last_price"] = [round(x, rb) for x in bcdf["last_price"]]
-    scdf["last_price"] = [round(x, rb) for x in scdf["last_price"]]
+    for i in anchor.index:
+        bcol = [("bp0", "bq0"), ("bp1", "bq1"), ("bp2", "bq2"), ("bp3", "bq3"), ("bp4", "bq4")]
+        scol = [("sp0", "sq0"), ("sp1", "sq1"), ("sp2", "sq2"), ("sp3", "sq3"), ("sp4", "sq4")]
 
-    bcdfa = bcdf.groupby("last_price").agg({"bq0": "max","bq1": "max", "bq2": "max", "bq3": "max", "bq4": "max"}).reset_index(drop=False)
-    bcdfa["max"] = [(max(x)) for x in zip(bcdfa["bq1"], bcdfa["bq2"], bcdfa["bq3"], bcdfa["bq4"])]
+        for p, q in bcol:
+            update_dict(bpq_map, anchor.loc[i, p], anchor.loc[i, q])
 
-    scdfa = scdf.groupby("last_price").agg({"sq0": "max", "sq1": "max", "sq2": "max", "sq3": "max", "sq4": "max"}).reset_index(drop=False)
-    scdfa["max"] = [(max(x)) for x in zip(scdfa["sq1"], scdfa["sq2"], scdfa["sq3"], scdfa["sq4"])]
-    return anchor, bcdf, scdf, bcdfa, scdfa, bp, sp
+        for p, q in scol:
+            update_dict(spq_map, anchor.loc[i, p], anchor.loc[i, q])
+    bpq_map = filter_by_per(list(bpq_map.items()), 95)
+    spq_map = filter_by_per(list(spq_map.items()), 95)
+    return anchor, bpq_map, spq_map
+
+def process_volume(anchor):
+    # volume
+    vp = np.percentile(anchor["volume"].to_list(), 99.5)
+    ind = anchor.loc[anchor["volume"] > vp].index
+
+    t = []
+    for i in ind:
+        if i < 5:
+            i=5
+        pbq = max(anchor.loc[i-5:i-1, ["bq0", "bq1", "bq2", "bq3", "bq4"]].values.reshape(-1))
+        psq = max(anchor.loc[i-5:i-1, ["sq0", "sq1", "sq2", "sq3", "sq4"]].values.reshape(-1))
+        vlm = anchor.loc[i, "volume"]
+        color = "orange" if pbq < vlm/3 and psq < vlm/3 else "royalblue"
+        t.append((anchor.loc[i-1, "last_price"], vlm, color))
+    return t
+
+def process_spread(anchor):
+    thres = np.percentile(anchor["spread"], 5)
+    return anchor.loc[anchor["spread"] < thres, ["last_price", "avg_price"]]
+
+
 
 def concat_images(imga, imgb):
     """
@@ -113,55 +136,42 @@ def concat_n_images(image_path_list):
             output = concat_images(output, img)
     return output.astype(np.uint8)
 
-def render_time_sr(anchor, bcdf, scdf, bp, sp):
-    fig, axs = plt.subplots(1, 2, figsize=(40, 5), sharey=True, sharex=True)
+def render_quantity_volume_sr(bpq_map, spq_map, t):
+    fig, axs = plt.subplots(2, 1, figsize=(30, 6), sharey=False, sharex=True)
 
-    _=axs[0].hist(bcdf["last_price"], bins=50, rwidth=0.5, color="green", alpha=0.5, align="left")
-    _=axs[0].hist(scdf["last_price"], bins=50, rwidth=0.5, color="red", alpha=0.5, align="right")
+    _=axs[0].bar(x = [_[0] for _ in bpq_map], height= [_[1][0] for _ in bpq_map], width=0.04, color="green", align="edge", alpha=0.7)
+    _=axs[0].bar(x = [_[0] for _ in spq_map], height= [_[1][0] for _ in spq_map], width=0.04, color="red", align="center", alpha=0.7)
     axs[0].grid()
+    axs[0].set_title("Limit Order")
 
-    _=axs[1].hist(anchor.loc[anchor["sq0"] > sp, "last_price"], bins=50, rwidth=0.4, color="red", alpha=0.5, align="right")
-    _=axs[1].hist(anchor.loc[anchor["bq0"] > bp, "last_price"], bins=50, rwidth=0.4, color="green", alpha=0.5, align="left")
+    axs[1].bar(x=[_[0] for _ in t if _[2] == "royalblue"], height=[np.clip(x, 0, 1e+6) for x in [_[1] for _ in t if _[2] == "royalblue"]], width=0.04, color="royalblue", alpha=0.8)
+    axs[1].bar(x=[_[0] for _ in t if _[2] == "orange"], height=[np.clip(x, 0, 1e+6) for x in [_[1] for _ in t if _[2] == "orange"]], width=0.04, color="orange", alpha=0.5)
     axs[1].grid()
+    axs[1].set_title("Peak Volume")
 
     img_name = f"./static/temp/tick-1.jpg"
     fig.savefig(img_name, bbox_inches='tight')
     plt.close(fig)
     return img_name
 
-def render_quantity_sr(bcdfa, scdfa):
-    fig, axs = plt.subplots(2, 1, figsize=(40, 7), sharey=True, sharex=True)
-
-    _=axs[0].bar(x = bcdfa["last_price"], height=bcdfa["max"], width=0.04, color="green", align="center")
-    _=axs[0].bar(x = scdfa["last_price"].values, height=scdfa["max"].values, width=0.02, color="red", align="edge")
-    axs[0].grid()
-
-    _=axs[1].bar(x = bcdfa["last_price"], height=bcdfa["bq0"], width=0.04, color="green", align="center")
-    _=axs[1].bar(x = scdfa["last_price"].values, height=scdfa["sq0"].values, width=0.02, color="red", align="edge")
-    axs[1].grid()
+def render_spread(spread):
+    fig, ax = plt.subplots(1, 1, figsize=(30, 4), sharey=False, sharex=False)
+    ax.plot(spread["last_price"], marker="o")
+    ax.plot(spread["avg_price"], marker="o")
+    ax.grid()
+    ax.set_title("Spread over time")
 
     img_name = f"./static/temp/tick-2.jpg"
     fig.savefig(img_name, bbox_inches='tight')
     plt.close(fig)
     return img_name
 
-def render_volume(anchor):
-    vp = np.percentile(anchor["volume"].to_list(), 99.5)
-    t = anchor.loc[anchor["volume"] > vp][["last_price", "volume", "bpa0", "spa0", "bq0", "sq0", "bq1", "sq1", "bq2", "sq2", "bq3", "sq3", "bq4", "sq4"]]
-    fig, ax = plt.subplots(1,1, figsize=(40, 3))
-    ax.bar(x=t["last_price"], height=[np.clip(x, 0, 1e+6) for x in t["volume"]], width=0.05)
-    ax.grid()
-
-    img_name = f"./static/temp/tick-3.jpg"
-    fig.savefig(img_name, bbox_inches='tight')
-    plt.close(fig)
-    return img_name
-
 def render_graph(name, end, lead=None):
-    anchor, bcdf, scdf, bcdfa, scdfa, bp, sp = process_ticks(name, end, lead)
-    time_img = render_time_sr(anchor, bcdf, scdf, bp, sp)
-    quantity_img = render_quantity_sr(bcdfa, scdfa)
-    volume_img = render_volume(anchor)
+    anchor, bpq_map, spq_map = process_ticks(name, end, lead)
+    t = process_volume(anchor)
+    spread = process_spread(anchor)
+    quantity_img = render_quantity_volume_sr(bpq_map, spq_map, t)
+    spread_img = render_spread(spread)
 
-    fimg = concat_n_images([time_img, quantity_img, volume_img])
+    fimg = concat_n_images([quantity_img, spread_img])
     return fimg
