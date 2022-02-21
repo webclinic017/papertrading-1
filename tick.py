@@ -105,7 +105,7 @@ def process_volume(anchor):
     return t
 
 def process_spread(anchor):
-    thres = np.percentile(anchor["spread"], 5)
+    thres = round(np.percentile(anchor["spread"], 5), 4)
     return anchor.loc[anchor["spread"] < thres, ["last_price", "avg_price"]]
 
 
