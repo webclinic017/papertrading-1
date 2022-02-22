@@ -228,7 +228,7 @@ def data(name, start, end):
 def calc_opentype(mp):
     mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
     mpt = mpt[mpt["mark"].isin(["O", "A", "B"])]
-    open = mpt.loc[mp["mark"] == "O", "price"].values[0]
+    open = mpt.loc[mpt["mark"] == "O", "price"].values[0]
     above = 1 + mpt[mpt["price"] > open].shape[0]
     below = 1 + mpt[mpt["price"] < open].shape[0]
     range = mpt["price"].unique().shape[0]
