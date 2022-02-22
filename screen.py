@@ -17,7 +17,9 @@ def rscore_screener(vz):
             rsmax - rs,
             rs - rsmin,
             vz[s]["uext"],
-            vz[s]["dext"]
+            vz[s]["dext"],
+            vz[s]["otype"],
+            vz[s]["orange"]
         ])
     return rscore
 
