@@ -157,7 +157,8 @@ def extension_score(mp):
 
 def x_axis_market_profile(one, tol=0.001):
     ulimit, llimit = one["high"].max(), one["low"].min()
-    spread = round((ulimit + llimit)/2 * tol, 2) # 0.1% of mean price
+    # spread = round((ulimit + llimit)/2 * tol, 2) # 0.1% of mean price
+    spread = round(one.loc[0, "open"] * tol, 2)
     xval = np.arange(llimit, ulimit, spread).tolist()
     xval.append(xval[-1]+spread)
     return xval, spread
