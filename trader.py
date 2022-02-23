@@ -225,13 +225,14 @@ def data(name, start, end):
     last_close = df["close"].values[-1]
     return df, last_close
 
-def calc_opentype(mp):
+def calc_opentype(mp, spread):
     mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
     mpt = mpt[mpt["mark"].isin(["O", "A", "B"])]
     open = mpt.loc[mpt["mark"] == "O", "price"].values[0]
     above = 1 + mpt[mpt["price"] > open].shape[0]
     below = 1 + mpt[mpt["price"] < open].shape[0]
-    range = mpt["price"].unique().shape[0]
+    # range = mpt["price"].unique().shape[0]
+    range = len(np.arange(mpt["price"].min(), mpt["price"].max(), spread))
     return round(abs(above/below), 4), range
 
 def calc_tporatio(mp, vzones):
@@ -265,7 +266,7 @@ def calculate_value_zones(df):
             mp, m_len, vzones = market_profile(subone, spread, xval=subxval, base=BASE)
             vzones["rscore"], vzones["rscore-min"], vzones["rscore-max"] = rotation_score(spread, mp)
             vzones["uext"], vzones["dext"] = extension_score(mp)
-            vzones["otype"], vzones["orange"] = calc_opentype(mp)
+            vzones["otype"], vzones["orange"] = calc_opentype(mp, spread)
             vzones["tpo-ratio"] = calc_tporatio(mp, vzones)
             mpm += mp
             BASE += (m_len + GAP)
