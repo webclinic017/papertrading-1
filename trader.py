@@ -242,7 +242,7 @@ def calc_tporatio(mp, vzones):
     mpt = mpt[~mpt["price"].isin(onetpo)]
     uptpo = 1+mpt[mpt["price"] > poc].shape[0]
     downtpo = 1+mpt[mpt["price"] < poc].shape[0]
-    return round(uptpo/downtpo, 4)
+    return round(downtpo/uptpo, 3)
 
 
 
