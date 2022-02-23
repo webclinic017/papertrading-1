@@ -86,7 +86,6 @@ def calculate_poc(mp, base=0, vz_tol=0.65):
                       "y": mpdf.loc[vzl, "y"],
                       "width": mpdf.loc[candidate, "x"],
                       "height": abs(mpdf.loc[vzl, "y"] - mpdf.loc[vzu, "y"])}
-
         del mpdf["key"]
     return vzones
 
@@ -234,6 +233,18 @@ def calc_opentype(mp):
     range = mpt["price"].unique().shape[0]
     return round(abs(above/below), 4), range
 
+def calc_tporatio(mp, vzones):
+    mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
+    poc = vzones["poc-price"]
+
+    onetpo = mpt.groupby("price").agg({"mark": "count"}).reset_index(drop=False)
+    onetpo = onetpo.loc[onetpo["mark"] == 1, "price"].to_list()
+    mpt = mpt[~mpt["price"].isin(onetpo)]
+    uptpo = 1+mpt[mpt["price"] > poc].shape[0]
+    downtpo = 1+mpt[mpt["price"] < poc].shape[0]
+    return round(uptpo/downtpo, 4)
+
+
 
 def calculate_value_zones(df):
     BASE = 0
@@ -254,6 +265,7 @@ def calculate_value_zones(df):
             vzones["rscore"], vzones["rscore-min"], vzones["rscore-max"] = rotation_score(spread, mp)
             vzones["uext"], vzones["dext"] = extension_score(mp)
             vzones["otype"], vzones["orange"] = calc_opentype(mp)
+            vzones["tpo-ratio"] = calc_tporatio(mp, vzones)
             mpm += mp
             BASE += (m_len + GAP)
             xticks.append(BASE)
@@ -308,7 +320,7 @@ def render_extension(ax, values_zones):
         if "uext" in vz and vz["uext"] != -1000:
             fcolor = "yellow" if abs(vz["uext"] - vz["dext"]) < 2 else ("lime" if vz["uext"] > vz["dext"] else "orangered")
 
-            ax.text(vz["x"]-5, vz["dlow"]*0.994, f"UE {vz['uext']} | DE {vz['dext']}", style='normal', color="black", size="x-large",
+            ax.text(vz["x"]-5, vz["dlow"]*0.994, f"UE {vz['uext']} | DE {vz['dext']} | TPO {vz['tpo-ratio']}", style='normal', color="black", size="x-large",
                 bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
 
 
