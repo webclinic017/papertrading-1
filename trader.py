@@ -32,7 +32,7 @@ from matplotlib.collections import PatchCollection
 matplotlib.pyplot.switch_backend('Agg')
 
 def get_mis_change():
-    return sum([x["unrealised"] + x["realised"] for x in kite.positions()["day"] if x["product"] == "MIS"])
+    return round(sum([x["unrealised"] + x["realised"] for x in kite.positions()["day"] if x["product"] == "MIS"]), 2)
 
 
 def s2o(dte):
