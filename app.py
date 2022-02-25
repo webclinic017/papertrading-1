@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for, request, render_template
-from trader import get_historic_graph, bet_outcome, format_payload, merge_output, get_volume_data
+from trader import get_historic_graph, bet_outcome, format_payload, merge_output, get_volume_data, get_mis_change
 from screen import screener_data
 from flask_cors import CORS
 from flask_pymongo import PyMongo
@@ -19,6 +19,10 @@ app.config["MONGO_URI"] = 'mongodb://localhost:27017/moneyplant'
 app.json_encoder = CustomJSONEncoder
 mongo = PyMongo(app)
 CORS(app)
+
+@app.route("/mis")
+def mis():
+    return json.dumps({"dchange": get_mis_change()})
 
 @app.route("/")
 def home():

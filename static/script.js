@@ -162,6 +162,25 @@ $(function(){
           });
         }
 
+  function day_change(){
+    $.ajax({
+      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+      type: 'GET',
+      url: 'mis',
+      crossDomain: true,
+      beforeSend: function(xhr){
+          xhr.withCredentials = true;
+    },
+      success: function(data, textStatus, request){
+            data = JSON.parse(data);
+            $("#dchange").val(data["dchange"]);
+          },
+      error: function(error){
+        alert("Error, Failed to load graph")
+      }
+    });
+  }
+
   function next_step(t1, t2, update){
     update = update ? 1: 0
     tm = tick_mode ? 1: 0
@@ -198,8 +217,9 @@ $(function(){
 
   function schedule_refresh(){
     // console.log('refreshing');
-    next_step(start.toString(), end.toString(), false)
-    $('#last-updated').val(moment().format('MMMM Do YYYY, h:mm:ss a'))
+    next_step(start.toString(), end.toString(), false);
+    $('#last-updated').val(moment().format('MMMM Do YYYY, h:mm:ss a'));
+    day_change();
   }
 
   $("#repeat").change(function(){

@@ -31,6 +31,9 @@ from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
 matplotlib.pyplot.switch_backend('Agg')
 
+def get_mis_change():
+    return sum([x["unrealised"] + x["realised"] for x in kite.positions()["day"] if x["product"] == "MIS"])
+
 
 def s2o(dte):
     # 0 - monday, 6-monday
