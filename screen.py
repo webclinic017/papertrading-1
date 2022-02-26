@@ -2,8 +2,12 @@ from trader import *
 import json
 import logging
 
-with open(ROOT_PATH + "/papertrading/static/stable.json") as f:
-    STOCKS = json.load(f)
+# with open(ROOT_PATH + "/papertrading/static/stable.json") as f:
+#     STOCKS = json.load(f)
+
+with open(ROOT_PATH + "/papertrading/static/tick_instrument.json", "r") as f:
+        ticks = json.load(f)
+        STOCKS = ticks["equity"]
 
 def rscore_screener(vz):
     rscore = []

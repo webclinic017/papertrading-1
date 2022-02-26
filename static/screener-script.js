@@ -22,7 +22,11 @@ $(document).ready(function() {
                     rscore.row.add(obj["rscore"][i]).draw( false );
                   }
                   $("#status").val("Idle")
-      }})};
+                },
+                error: function(error){
+                  $("#status").val("Error")
+                }
+    })};
 
       // intervalvar = window.setInterval(stats_data, 60000)
 
