@@ -300,7 +300,7 @@ def render_last_price(ax, xticks, last_close):
 def render_pocs(ax, values_zones):
     # Plot POCs and Value Zones
     for vz in values_zones:
-        ax.add_patch( Rectangle((vz["x"], vz["y"]), vz["width"], vz["height"], alpha=0.1, color="green") )
+        ax.add_patch( Rectangle((vz["x"], vz["y"]), vz["width"], vz["height"], alpha=0.3, color="green") )
         ax.add_patch( Rectangle((vz["x"], vz["poc-price"]), vz["width"], vz["poc-price"]*0.0001, alpha=0.8, color="red") )
 
 
@@ -311,14 +311,14 @@ def render_open_type(ax, values_zones):
         if "open-type" in vz:
             fcolor = ofclolor[vz["open-type"]]
             ax.text(vz["x"], vz["dhigh"]*1.002, vz["open-type"], style='normal', color="black", size="x-large",
-                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
+                bbox={'facecolor': fcolor, 'alpha': 0.6, 'pad': 4})
 
 def render_rscore(ax, values_zones):
     for vz in values_zones[2::3]:
         if "rscore" in vz and vz["rscore"] != -1000:
             fcolor = "yellow" if abs(vz["rscore"]) < 3 else ("lime" if vz["rscore"] >= 3 else "orangered")
             ax.text(vz["x"]-5, vz["dlow"]*0.996, f"Rotation {vz['rscore']} ({vz['rscore-min']} - {vz['rscore-max']})", style='normal', color="black", size="x-large",
-                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
+                bbox={'facecolor': fcolor, 'alpha': 0.6, 'pad': 4})
 
 def render_extension(ax, values_zones):
     for vz in values_zones[2::3]:
@@ -326,7 +326,7 @@ def render_extension(ax, values_zones):
             fcolor = "yellow" if abs(vz["uext"] - vz["dext"]) < 2 else ("lime" if vz["uext"] > vz["dext"] else "orangered")
 
             ax.text(vz["x"]-5, vz["dlow"]*0.994, f"UE {vz['uext']} | DE {vz['dext']} | TPO {vz['tpo-ratio']}", style='normal', color="black", size="x-large",
-                bbox={'facecolor': fcolor, 'alpha': 0.8, 'pad': 4})
+                bbox={'facecolor': fcolor, 'alpha': 0.6, 'pad': 4})
 
 
 def beautify_graph(name, ax, xticks, ymin, ymax, last_close):

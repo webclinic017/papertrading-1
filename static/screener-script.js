@@ -22,9 +22,11 @@ $(document).ready(function() {
                     rscore.row.add(obj["rscore"][i]).draw( false );
                   }
                   $("#status").val("Idle")
+                  $(document).prop('title', "LC Screener");
                 },
                 error: function(error){
                   $("#status").val("Error")
+                  $(document).prop('title', "LC Screener");
                 }
     })};
 
@@ -32,6 +34,7 @@ $(document).ready(function() {
 
       $("#refresh").on("click", function(){
         $("#status").val("Fetching...")
+        $(document).prop('title', "Fetching | LC Screener");
         rscore.rows().remove().draw();
         stats_data();
       })
