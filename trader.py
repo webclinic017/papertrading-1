@@ -301,7 +301,7 @@ def render_pocs(ax, values_zones):
     # Plot POCs and Value Zones
     prev_vz_high = None
     prev_vz_low = None
-    for vz in values_zones:
+    for k, vz in enumerate(values_zones):
         pcolor = "yellow"
         if prev_vz_high is not None:
             if vz["vz-upper-price"] >= prev_vz_high and vz["vz-lower-price"] >= prev_vz_low:
@@ -311,8 +311,9 @@ def render_pocs(ax, values_zones):
 
         ax.add_patch( Rectangle((vz["x"], vz["y"]), vz["width"], vz["height"], alpha=0.3, color=pcolor) )
         ax.add_patch( Rectangle((vz["x"], vz["poc-price"]), vz["width"], vz["poc-price"]*0.0001, alpha=0.8, color="red") )
-        prev_vz_high = vz["vz-upper-price"]
-        prev_vz_low = vz["vz-lower-price"]
+        if (k+1)%3 == 0:
+            prev_vz_high = vz["vz-upper-price"]
+            prev_vz_low = vz["vz-lower-price"]
 
 
 def render_open_type(ax, values_zones):
