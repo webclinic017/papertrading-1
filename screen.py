@@ -24,6 +24,8 @@ def rscore_screener(vz):
             vz[s]["dext"],
             vz[s]["otype"],
             vz[s]["orange"],
+            vz[s]["margin_up"],
+            vz[s]["margin_down"],
             vz[s]["tpo-ratio"]
         ])
     return rscore
