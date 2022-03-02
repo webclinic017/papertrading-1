@@ -261,11 +261,11 @@ def calculate_value_zones(df):
 
     for k, day in enumerate(df["day"].unique()):
         one = df[df["day"] == day].reset_index(drop=True)
-        last_price = list(df["close"].values)[-1]
         # calculte x-axis from final day price
         xval, spread = x_axis_market_profile(one, tol=0.001)
 
         for subone in [one[:2], one[:4], one]:  # 1 hour, 2 hours, and entire day
+            last_price = list(subone["close"].values)[-1]
             # select a subset of x-axis for part day
             subxval = x_axis_subset(xval, subone)
             mp, m_len, vzones = market_profile(subone, spread, xval=subxval, base=BASE)
