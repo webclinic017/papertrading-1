@@ -32,9 +32,10 @@ def home():
 def screener_home():
     return render_template("screener.html")
 
-@app.route("/ss/<end_date>")
-def ss(end_date):
-    return json.dumps(screener_data(end_date))
+@app.route("/ss/<end_date>/<is_nifty>")
+def ss(end_date, is_nifty):
+    is_nifty = (is_nifty == "true")
+    return json.dumps(screener_data(end_date, is_nifty))
 
 @app.route('/hgraph/<name>/<start>/<end>/<update>/<tick_mode>/<lead>')
 def historic_graph(name, start, end, update, tick_mode, lead):
@@ -103,4 +104,4 @@ def stats(gameid):
     return json.dumps(resp, default=str)
 
 if __name__ == '__main__':
-   app.run(debug = True, host='127.0.0.1')
+   app.run(debug = False, host='127.0.0.1')

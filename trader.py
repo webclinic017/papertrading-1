@@ -230,14 +230,15 @@ def data(name, start, end):
 
 def calc_opentype(mp, spread, last_price):
     mpt = pd.DataFrame(mp, columns=["x", "price", "mark"])
+    low, high = mpt["price"].min(), mpt["price"].max()
     mpt = mpt[mpt["mark"].isin(["O", "A", "B"])]
     open = mpt.loc[mpt["mark"] == "O", "price"].values[0]
     above = 1 + mpt[mpt["price"] > open].shape[0]
     below = 1 + mpt[mpt["price"] < open].shape[0]
     # range = mpt["price"].unique().shape[0]
     range = len(np.arange(mpt["price"].min(), mpt["price"].max(), spread))
-    margin_down = len(np.arange(mpt["price"].min(), last_price, spread))
-    margin_up = len(np.arange(last_price, mpt["price"].max(), spread))
+    margin_down = len(np.arange(low, last_price, spread))
+    margin_up = len(np.arange(last_price, high, spread))
     return round(abs(above/below), 4), range, margin_up, margin_down
 
 def calc_tporatio(mp, vzones):
@@ -266,6 +267,7 @@ def calculate_value_zones(df):
 
         for subone in [one[:2], one[:4], one]:  # 1 hour, 2 hours, and entire day
             last_price = list(subone["close"].values)[-1]
+
             # select a subset of x-axis for part day
             subxval = x_axis_subset(xval, subone)
             mp, m_len, vzones = market_profile(subone, spread, xval=subxval, base=BASE)

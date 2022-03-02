@@ -9,6 +9,9 @@ with open(ROOT_PATH + "/papertrading/static/tick_instrument.json", "r") as f:
         ticks = json.load(f)
         STOCKS = ticks["equity"]
 
+with open(ROOT_PATH + "/papertrading/static/nifty50.json", "r") as f:
+        NIFTY_STOCK = json.load(f)
+
 def rscore_screener(vz):
     rscore = []
     for s in vz:
@@ -30,10 +33,12 @@ def rscore_screener(vz):
         ])
     return rscore
 
-def screener_data(end=None):
+def screener_data(end=None, nifty=False):
     if end is None:
         end = str(datetime.now().date())
-    df = fetch_data(STOCKS, f"{end} 09:00:00", f"{end} 16:00:00", span="30minute")
+
+    stock = NIFTY_STOCK if nifty else STOCKS
+    df = fetch_data(stock, f"{end} 09:00:00", f"{end} 16:00:00", span="30minute")
     vz = {}
 
     for s in STOCKS:

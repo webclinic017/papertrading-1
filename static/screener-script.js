@@ -1,17 +1,26 @@
 $(document).ready(function() {
     var rscore = $('#rscore').DataTable();
     var date = moment().startOf('day').format('YYYY-MM-DD');
+    var is_nifty = "false"
+
     $('#date').val(date.toString());
     $("#date").change(function(){
       date = $(this).val()
       console.log(date);
+    })
+    $("#is_nifty").change(function(){
+        if($(this).is(":checked")) {
+          is_nifty = "true"
+        } else {
+          is_nifty = "false"
+        }
     })
 
     function stats_data(){
             $.ajax({
               headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
               type: 'GET',
-              url: 'ss'+"/"+date,
+              url: 'ss'+"/"+date+"/"+is_nifty,
               crossDomain: true,
               beforeSend: function(xhr){
                   xhr.withCredentials = true;
