@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs5/dt-1.11.5/fh-3.2.2/rg-1.1.4/sl-1.3.4/datatables.min.css"/>
+    <link rel="shortcut icon" href="static/cat.jpeg" />
+    <style media="screen">
+      .top-buffer { margin-top:20px; }
+      .border-thick {border: 5px solid #555; padding: 10px; align: center}
+      .green-row {background-color: #80ffaa; border-bottom: 3px solid #ddd}
+      .red-row {background-color: #ffb3b3; border-bottom: 3px solid #ddd}
+      .yellow-row {background-color: #ffffcc; border-bottom: 3px solid #ddd}
+      .div-border {border: 1px outset #ccc;}
+      a:link {text-decoration: none;}
+    </style>
+    <title>Lumbinicapital Screener</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+        <div class="row top-buffer">
+          <div class="col-sm-2">
+            <label for="status" class="sr-only">Status</label>
+            <input type="text" class="form-control" placeholder="Idle" id="status" value="Idle" readonly>
+          </div>
+          <div class="col-sm-2">
+            <label for="date" class="sr-only">Date</label>
+            <input type="text" class="form-control" placeholder="date" id="date" value="date">
+          </div>
+          <div class="col-sm-1">
+            <label for="repeat" class="sr-only">Repeat(Sec)</label>
+            <input type="text" class="form-control" placeholder="seconds" id="repeat" value="0">
+          </div>
+          <div class="col-sm-1">
+          </br>
+            <input class="form-check-input" type="checkbox" value="is_nifty" id="is_nifty" checked>
+            <label class="form-check-label" for="is_nifty">NIFTY 50</label>
+          </div>
+          <div class="col-sm-1">
+          </br>
+              <button type="button" name="refresh" class="btn btn-primary" id="refresh">Refresh</button>
+          </div>
+        </div>
+
+        <!-- row 1 -->
+        <div class="row top-buffer">
+        <div class="col-sm-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h5 class="m-0 font-weight-bold text-danger">Extended Sectors</h5>
+            </div>
+            <div class="card-body">
+              <table id="extended-sector" class="display cell-border compact stripe" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>STOCKS</th>
+                        <th>M UP</th>
+                        <th>M DOWN</th>
+                        <th>U EXT</th>
+                        <th>D EXT</th>
+                        <th>Rotation</th>
+                        <th>SECTOR</th>
+                    </tr>
+                </thead>
+            </table>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="col-sm-6">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h5 class="m-0 font-weight-bold text-danger">Extended Stocks</h5>
+            </div>
+            <div class="card-body">
+              <table id="extended-stock" class="display cell-border compact stripe" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>STOCKS</th>
+                        <th>M UP</th>
+                        <th>M DOWN</th>
+                        <th>U EXT</th>
+                        <th>D EXT</th>
+                        <th>Rotation</th>
+                        <th>SECTOR</th>
+                    </tr>
+                </thead>
+            </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- row 2 -->
+
+      <div class="row top-buffer">
+      <div class="col-sm-6">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h5 class="m-0 font-weight-bold text-danger">Value Extended Down</h5>
+          </div>
+          <div class="card-body">
+            <table id="extended-stock-down" class="display cell-border compact stripe" style="width:100%">
+              <thead>
+                  <tr>
+                      <th>STOCKS</th>
+                      <th>M UP</th>
+                      <th>M DOWN</th>
+                      <th>U EXT</th>
+                      <th>D EXT</th>
+                      <th>Rotation</th>
+                      <th>SECTOR</th>
+                  </tr>
+              </thead>
+          </table>
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="col-sm-6">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h5 class="m-0 font-weight-bold text-danger">Value Extended Up</h5>
+          </div>
+          <div class="card-body">
+            <table id="extended-stock-up" class="display cell-border compact stripe" style="width:100%">
+              <thead>
+                  <tr>
+                      <th>STOCKS</th>
+                      <th>M UP</th>
+                      <th>M DOWN</th>
+                      <th>U EXT</th>
+                      <th>D EXT</th>
+                      <th>Rotation</th>
+                      <th>SECTOR</th>
+                  </tr>
+              </thead>
+          </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- row 3 -->
+
+    <div class="row top-buffer">
+      <div class="col-sm-12">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h5 class="m-0 font-weight-bold text-danger">No Extended Stocks</h5>
+          </div>
+          <div class="card-body">
+            <table id="no-extended-stock" class="display cell-border compact stripe" style="width:100%">
+              <thead>
+                  <tr>
+                      <th>STOCKS</th>
+                      <th>M UP</th>
+                      <th>M DOWN</th>
+                      <th>U EXT</th>
+                      <th>D EXT</th>
+                      <th>Rotation</th>
+                      <th>1 Hour</th>
+                      <th>OType</th>
+                      <th>SECTOR</th>
+                  </tr>
+              </thead>
+          </table>
+          </div>
+
+        </div>
+      </div>
+  </div>
+
+
+
+    <!-- row 4 -->
+
+    <div class="row top-buffer">
+      <div class="col-sm-12">
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h5 class="m-0 font-weight-bold text-danger">Market Screener</h5>
+          </div>
+          <div class="card-body">
+            <table id="market-screeners" class="display cell-border compact stripe" style="width:100%">
+              <thead>
+                  <tr>
+                    <th>Tradingsymbol</th>
+                    <th>Rotation Score</th>
+                    <th>Min Rotation</th>
+                    <th>Max Rotation</th>
+                    <th>Pullback Max</th>
+                    <th>Pullback Min</th>
+                    <th>Upper Ext</th>
+                    <th>Lower Ext</th>
+                    <th>open type</th>
+                    <th>1hr range</th>
+                    <th>Margin Up</th>
+                    <th>Margin Down</th>
+                    <th>TPO Ratio</th>
+                    <th>SECTOR</th>
+                  </tr>
+              </thead>
+          </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/dt-1.11.5/fh-3.2.2/rg-1.1.4/sl-1.3.4/datatables.min.js"></script>
+    <script type="text/javascript" src="static/js/events-script.js"></script>
+  </body>
+</html>

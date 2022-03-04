@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template
 from trader import get_historic_graph, bet_outcome, format_payload, merge_output, get_volume_data, get_mis_change
-from screen import screener_data
+from screen import screener_data, events_screener
 from flask_cors import CORS
 from flask_pymongo import PyMongo
 from flask.json import JSONEncoder
@@ -19,6 +19,15 @@ app.config["MONGO_URI"] = 'mongodb://localhost:27017/moneyplant'
 app.json_encoder = CustomJSONEncoder
 mongo = PyMongo(app)
 CORS(app)
+
+@app.route("/events")
+def events():
+    return render_template("events.html")
+
+@app.route("/events_data/<end_date>/<is_nifty>")
+def events_data(end_date, is_nifty):
+    is_nifty = (is_nifty == "true")
+    return json.dumps(events_screener(end_date, is_nifty))
 
 @app.route("/mis")
 def mis():
@@ -104,4 +113,4 @@ def stats(gameid):
     return json.dumps(resp, default=str)
 
 if __name__ == '__main__':
-   app.run(debug = False, host='127.0.0.1')
+   app.run(debug = True, host='127.0.0.1')

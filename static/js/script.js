@@ -1,10 +1,15 @@
 $(function(){
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const ts = urlParams.get('tradingsymbol')
+  console.log(ts);
   var img = new Image();
 
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
   var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
   var current = start.clone();
-  var tradingsymbol = 'NIFTY 50,RELIANCE,HDFCBANK'
+  var tradingsymbol = (ts == '') ? 'NIFTY 50,RELIANCE,HDFCBANK' : ts
   var refresh = false
   var game_mode = false
   var buy = true
@@ -349,7 +354,7 @@ $(function(){
     stats_refresh();
   });
 
-  stats_refresh();
+  schedule_refresh();
 
 
 });

@@ -233,8 +233,8 @@ def calc_opentype(mp, spread, last_price):
     low, high = mpt["price"].min(), mpt["price"].max()
     mpt = mpt[mpt["mark"].isin(["O", "A", "B"])]
     open = mpt.loc[mpt["mark"] == "O", "price"].values[0]
-    above = 1 + mpt[mpt["price"] > open].shape[0]
-    below = 1 + mpt[mpt["price"] < open].shape[0]
+    above = 1 + len(np.arange(mpt["price"].min(), open, spread))
+    below = 1 + len(np.arange(open, mpt["price"].max(), spread))
     # range = mpt["price"].unique().shape[0]
     range = len(np.arange(mpt["price"].min(), mpt["price"].max(), spread))
     margin_down = len(np.arange(low, last_price, spread))
