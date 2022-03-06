@@ -23,6 +23,7 @@ $(function(){
   var tick_mode = false
   var image_height = 0
   var image_width = 0
+  var should_reset = true
 
   $('#current-date').val(current.toString());
   $('#lookback').val(lookback);
@@ -60,12 +61,16 @@ $(function(){
   })
 
   function image_reset() {
+    if (!should_reset){
+      return
+    }
     var maxheight = parseInt($(".root-div").css('max-height')) - 30;
     var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
     var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
     $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
     $("#img-div").css("background-position", "0px 10px, left top");
     $('div.h-cross').css('width', newWidth + "px");
+    should_reset = false
   };
 
   img.onload = function() {
@@ -91,7 +96,8 @@ $(function(){
   }
 
   $("#tradingsymbol").change(function(){
-    tradingsymbol = $(this).val()
+    tradingsymbol = $(this).val();
+    should_reset = true;
   })
 
   $("#Entry").change(function(){
