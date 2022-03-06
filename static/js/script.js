@@ -5,6 +5,14 @@ $(function(){
   const ts = urlParams.get('tradingsymbol')
   const autoload = urlParams.get('autoload')
   var img = new Image();
+  img.onload = function() {
+    image_height = parseInt(this.height);
+    image_width = parseInt(this.width);
+    image_reset();
+  };
+  if(autoload != null){
+    schedule_refresh();
+  };
 
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
   var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
@@ -46,7 +54,7 @@ $(function(){
         game_mode = false
 
       }
-  })
+  });
 
   $("#tick-mode").change(function(){
       if($(this).is(":checked")) {
@@ -58,12 +66,22 @@ $(function(){
         $("#tradingsymbol").val("NIFTY 50,NIFTY BANK");
         tradingsymbol = "NIFTY 50,NIFTY BANK"
       }
-  })
+  });
+
+  $("#repeat").change(function(){
+      if($(this).is(":checked")) {
+        intervalvar = window.setInterval(schedule_refresh, 60000)
+        console.log("starting refresh");
+      } else {
+        window.clearInterval(intervalvar)
+        console.log('cleared refresh');
+      }
+  });
 
   function image_reset() {
     size = gsize();
     const pheight = parseInt(size[1])
-    var maxheight = parseInt($(".root-div").css('max-height')) - 30;
+    var maxheight = parseInt($(".root-div").css('height')) - 30;
     var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
     var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
 
@@ -73,33 +91,107 @@ $(function(){
       }
       return
     }
+
+    const xposition = Math.min(0, parseInt($(".root-div").css('width')) - newWidth);
     $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
-    $("#img-div").css("background-position", "0px 10px, left top");
+    $("#img-div").css("background-position", `${xposition}px 10px, left top`);
     $('div.h-cross').css('width', newWidth + "px");
     should_reset = false;
   };
 
-  img.onload = function() {
-    image_height = parseInt(this.height);
-    image_width = parseInt(this.width);
-    image_reset();
-  }
-
-
-  $("#buy").change(function(){
-      if($(this).is(":checked")) {
-        buy = true
-      } else {
-        buy = false
+  function stats_refresh(){
+    $.ajax({
+      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+      type: 'GET',
+      url: 'stats/'+gameid,
+      crossDomain: true,
+      beforeSend: function(xhr){
+          xhr.withCredentials = true;
+    },
+      success: function(data, textStatus, request){
+          const obj = JSON.parse(data);
+          $('#gameidview').val(obj["gameid"]);
+          $('#accuracy').val(obj["accuracy"]);
+          $('#change').val(obj["change"]);
+          $('#count').val(obj["count"]);
+          $('#maxdrawdown').val(obj["maxdrawdown"]);
+          $('#partial').val(obj["partial"]);
+          $('#peak').val(obj["peak"]);
       }
-  })
+    });
+  };
 
   function rrr_refresh(){
     var rrr = (parseFloat(target) - parseFloat(entry))/ (parseFloat(stoploss) - parseFloat(entry));
     rrr = Math.abs(rrr)
     rrr = rrr.toFixed(2)
     $('#rrr').val(rrr);
-  }
+  };
+
+  function day_change(){
+    $.ajax({
+      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+      type: 'GET',
+      url: 'mis',
+      crossDomain: true,
+      beforeSend: function(xhr){
+          xhr.withCredentials = true;
+    },
+      success: function(data, textStatus, request){
+            data = JSON.parse(data);
+            $("#dchange").val(data["dchange"]);
+          },
+      error: function(error){
+        alert("Error, Failed to load graph")
+      }
+    });
+  };
+
+  function next_step(t1, t2, update){
+    update = update ? 1: 0
+    tm = tick_mode ? 1: 0
+    lead = $("#lead").val()
+
+    $.ajax({
+      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
+      type: 'GET',
+      url: 'hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update+"/"+tm+"/"+lead,
+      crossDomain: true,
+      beforeSend: function(xhr){
+          xhr.withCredentials = true;
+    },
+      success: function(data, textStatus, request){
+          data = JSON.parse(data);
+          $("#img-div").css('background-image', `url('${data["imgurl"]}')`);
+          img.src = data["imgurl"];
+          if(data["update"] == "1"){
+            $('#Entry').val(data["close"]);
+            entry = data["close"];
+            $('#Target').val(data["close"]);
+            target = data["close"];
+            $('#sl').val(data["close"]);
+            stoploss = data["close"];
+            rrr_refresh();
+          }
+
+      },
+      error: function(error){
+        alert("Error, Failed to load graph")
+      }
+    });
+  };
+
+  function schedule_refresh(){
+    // console.log('refreshing');
+    next_step(start.toString(), end.toString(), false);
+    $('#last-updated').val(moment().format('MMMM Do YYYY, h:mm:ss a'));
+    day_change();
+  };
+
+
+  $("#buy").change(function(){
+    buy = $(this).is(":checked");
+  })
 
   $("#tradingsymbol").change(function(){
     tradingsymbol = $(this).val();
@@ -143,99 +235,7 @@ $(function(){
 
   $('#clear-notes').on('click', function(){
     $('#notes').val('')
-  })
-
-  function stats_refresh(){
-          $.ajax({
-            headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
-            type: 'GET',
-            url: 'stats/'+gameid,
-            crossDomain: true,
-            beforeSend: function(xhr){
-                xhr.withCredentials = true;
-          },
-            success: function(data, textStatus, request){
-                const obj = JSON.parse(data);
-                $('#gameidview').val(obj["gameid"]);
-                $('#accuracy').val(obj["accuracy"]);
-                $('#change').val(obj["change"]);
-                $('#count').val(obj["count"]);
-                $('#maxdrawdown').val(obj["maxdrawdown"]);
-                $('#partial').val(obj["partial"]);
-                $('#peak').val(obj["peak"]);
-            }
-          });
-        }
-
-  function day_change(){
-    $.ajax({
-      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
-      type: 'GET',
-      url: 'mis',
-      crossDomain: true,
-      beforeSend: function(xhr){
-          xhr.withCredentials = true;
-    },
-      success: function(data, textStatus, request){
-            data = JSON.parse(data);
-            $("#dchange").val(data["dchange"]);
-          },
-      error: function(error){
-        alert("Error, Failed to load graph")
-      }
-    });
-  }
-
-  function next_step(t1, t2, update){
-    update = update ? 1: 0
-    tm = tick_mode ? 1: 0
-    lead = $("#lead").val()
-
-    $.ajax({
-      headers: { "Accept": "application/json", "Access-Control-Allow-Headers": "*"},
-      type: 'GET',
-      url: 'hgraph/'+tradingsymbol+'/'+t1+'/'+t2+"/"+update+"/"+tm+"/"+lead,
-      crossDomain: true,
-      beforeSend: function(xhr){
-          xhr.withCredentials = true;
-    },
-      success: function(data, textStatus, request){
-          data = JSON.parse(data);
-          $("#img-div").css('background-image', `url('${data["imgurl"]}')`);
-          img.src = data["imgurl"];
-          if(data["update"] == "1"){
-            $('#Entry').val(data["close"]);
-            entry = data["close"];
-            $('#Target').val(data["close"]);
-            target = data["close"];
-            $('#sl').val(data["close"]);
-            stoploss = data["close"];
-            rrr_refresh();
-          }
-
-      },
-      error: function(error){
-        alert("Error, Failed to load graph")
-      }
-    });
-  }
-
-  function schedule_refresh(){
-    // console.log('refreshing');
-    next_step(start.toString(), end.toString(), false);
-    $('#last-updated').val(moment().format('MMMM Do YYYY, h:mm:ss a'));
-    day_change();
-  }
-
-  $("#repeat").change(function(){
-      if($(this).is(":checked")) {
-        intervalvar = window.setInterval(schedule_refresh, 60000)
-        console.log("starting refresh");
-      } else {
-        window.clearInterval(intervalvar)
-        console.log('cleared refresh');
-      }
-  })
+  });
 
 
   $("#graph-history").click(function(){
@@ -359,9 +359,6 @@ $(function(){
     stats_refresh();
   });
 
-  if(autoload != null){
-    schedule_refresh();
-  };
   $('#reset-graph').on("click", function(){
     should_reset = true;
     image_reset() });
