@@ -3,13 +3,13 @@ $(function(){
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const ts = urlParams.get('tradingsymbol')
-  console.log(ts);
+  const autoload = urlParams.get('autoload')
   var img = new Image();
 
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
   var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
   var current = start.clone();
-  var tradingsymbol = (ts == '') ? 'NIFTY 50,RELIANCE,HDFCBANK' : ts
+  var tradingsymbol = (ts == null) ? 'NIFTY 50,NIFTY BANK' : ts
   var refresh = false
   var game_mode = false
   var buy = true
@@ -21,6 +21,8 @@ $(function(){
   var gameid = "unclassified"
   var intervalvar = null
   var tick_mode = false
+  var image_height = 0
+  var image_width = 0
 
   $('#current-date').val(current.toString());
   $('#lookback').val(lookback);
@@ -29,39 +31,19 @@ $(function(){
   $('#Entry').val(entry);
   $('#Target').val(target);
   $('#leadhr').val(leadhr);
-
-  // clear ui
-  $('#game-control').hide();
-  $('#statdiv').hide();
-  $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar');
-  $('.my-custom-scrollbar').css('min-height', '700px');
-  // wheelzoom(document.querySelector('img.zoom'));
-
+  var wheight = $(window).height()-30
+  $('.root-div').css("max-height", `${wheight}px`)
+  $('.root-div').css("min-height", `${wheight}px`)
+  console.log(wheight);
 
   $("#game-mode").change(function(){
       if($(this).is(":checked")) {
         $('#game-control').show()
-        $('#statdiv').show()
-        $('#imgdiv').attr('class', 'col-sm-10 my-custom-scrollbar')
-        $('.my-custom-scrollbar').css('min-height', '580px')
         game_mode = true
       } else {
         $('#game-control').hide()
         game_mode = false
-        $('#statdiv').hide()
-        $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar')
-        $('.my-custom-scrollbar').css('min-height', '700px')
 
-      }
-  })
-
-  $("#game-stats").change(function(){
-      if($(this).is(":checked")) {
-        $('#statdiv').show()
-        $('#imgdiv').attr('class', 'col-sm-10 my-custom-scrollbar')
-      } else {
-        $('#statdiv').hide()
-        $('#imgdiv').attr('class', 'col-sm-12 my-custom-scrollbar')
       }
   })
 
@@ -72,18 +54,24 @@ $(function(){
         tradingsymbol = "RELIANCE"
       } else {
         tick_mode = false
-        $("#tradingsymbol").val("NIFTY 50,RELIANCE,HDFCBANK");
-        tradingsymbol = "NIFTY 50,RELIANCE,HDFCBANK"
+        $("#tradingsymbol").val("NIFTY 50,NIFTY BANK");
+        tradingsymbol = "NIFTY 50,NIFTY BANK"
       }
   })
 
+  function image_reset() {
+    var maxheight = parseInt($(".root-div").css('max-height')) - 30;
+    var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
+    var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
+    $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
+    $("#img-div").css("background-position", "0px 10px, left top");
+    $('div.h-cross').css('width', newWidth + "px");
+  };
+
   img.onload = function() {
-    console.log(this.width + 'x' + this.height);
-    height = parseInt(this.height);
-    width = parseInt(this.width);
-    var maxheight = parseInt($(".img-style").css('max-height'));
-    var newwidth = maxheight > height ? width : width * (maxheight/height);
-    $('div.h-cross').css('width', newwidth + "px");
+    image_height = parseInt(this.height);
+    image_width = parseInt(this.width);
+    image_reset();
   }
 
 
@@ -129,15 +117,15 @@ $(function(){
     gameid = $(this).val()
   })
 
-  $('#imgdiv').on('mousemove', function(e){
+  $('#img-div').on('mousemove', function(e){
     $('div.h-cross').css('top', e.clientY);
   })
 
-  $('#imgdiv').on('mouseenter', function(e){
+  $('#img-div').on('mouseenter', function(e){
     $('div.h-cross').css('visibility', 'visible');
   })
 
-  $('#imgdiv').on('mouseleave', function(e){
+  $('#img-div').on('mouseleave', function(e){
     $('div.h-cross').css('visibility', 'hidden');
   })
 
@@ -201,7 +189,7 @@ $(function(){
     },
       success: function(data, textStatus, request){
           data = JSON.parse(data);
-          $("#graph-image").attr('src', data["imgurl"]);
+          $("#img-div").css('background-image', `url('${data["imgurl"]}')`);
           img.src = data["imgurl"];
           if(data["update"] == "1"){
             $('#Entry').val(data["close"]);
@@ -354,7 +342,8 @@ $(function(){
     stats_refresh();
   });
 
-  schedule_refresh();
+  if(autoload != null){schedule_refresh()};
+  $('#reset-graph').on("click", function(){ image_reset() });
 
 
 });

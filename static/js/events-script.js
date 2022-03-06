@@ -11,7 +11,7 @@ $(document).ready(function() {
         options,
         {"createdRow": function( row, data, dataIndex ) {
                         ts = encodeURIComponent(data[0].trim());
-                        $('td:eq(0)', row).html( `<a target="_blank" href=/?tradingsymbol=${ts}>${data[0]}</a>` );
+                        $('td:eq(0)', row).html( `<a target="_blank" href=/?tradingsymbol=${ts}&autoload=1>${data[0]}</a>` );
 
                         if ( data[3] > 0 && data[4] > 0 ){
                           $(row).addClass( 'yellow-row' );

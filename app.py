@@ -58,7 +58,7 @@ def historic_graph(name, start, end, update, tick_mode, lead):
     outcome = []
     if tick_mode  == 0 or len(name.split(",")) > 1:
         for nm in name.split(","):
-            fpath, last_close = get_historic_graph(nm, start, end)
+            fpath, last_close = get_historic_graph(nm.strip(), start, end)
             outcome.append((fpath, last_close))
         outcome = merge_output(outcome)
     else:
