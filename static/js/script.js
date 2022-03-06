@@ -24,6 +24,7 @@ $(function(){
   var image_height = 0
   var image_width = 0
   var should_reset = true
+  var lasttime = null
 
   $('#current-date').val(current.toString());
   $('#lookback').val(lookback);
@@ -35,7 +36,6 @@ $(function(){
   var wheight = $(window).height()-30
   $('.root-div').css("max-height", `${wheight}px`)
   $('.root-div').css("min-height", `${wheight}px`)
-  console.log(wheight);
 
   $("#game-mode").change(function(){
       if($(this).is(":checked")) {
@@ -259,7 +259,11 @@ $(function(){
     });
 
 
-  $('#Next-Hour').on('click', function(){
+  $('#Next-Hour').on('click', function(e){
+    if(lasttime != null && (e.timeStamp - lasttime) < 10000){
+      alert("Please wait atleast 10 second")
+      return;
+    }
     current = current.add(30, 'minute');
     $('#current-date').val(current.toString());
 
@@ -271,6 +275,7 @@ $(function(){
     leadhr = leadhr + 1;
     $(document).prop('title', tradingsymbol + " | Lumbinicapital");
     $('#leadhr').val(leadhr);
+    lasttime = e.timeStamp;
   });
 
 
