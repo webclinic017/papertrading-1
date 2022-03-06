@@ -61,16 +61,22 @@ $(function(){
   })
 
   function image_reset() {
-    if (!should_reset){
-      return
-    }
+    size = gsize();
+    const pheight = parseInt(size[1])
     var maxheight = parseInt($(".root-div").css('max-height')) - 30;
     var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
     var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
+
+    if (!should_reset){
+      if(Math.abs(image_height - pheight) > 50){
+        $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
+      }
+      return
+    }
     $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
     $("#img-div").css("background-position", "0px 10px, left top");
     $('div.h-cross').css('width', newWidth + "px");
-    should_reset = false
+    should_reset = false;
   };
 
   img.onload = function() {
@@ -348,8 +354,12 @@ $(function(){
     stats_refresh();
   });
 
-  if(autoload != null){schedule_refresh()};
-  $('#reset-graph').on("click", function(){ image_reset() });
+  if(autoload != null){
+    schedule_refresh();
+  };
+  $('#reset-graph').on("click", function(){
+    should_reset = true;
+    image_reset() });
 
 
 });

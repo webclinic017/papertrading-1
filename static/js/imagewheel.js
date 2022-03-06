@@ -1,24 +1,25 @@
+const regex = /-?[0-9]+/g;
+
+function gposition(){
+  var position = $("#img-div").css("background-position");
+  position = position.match(regex);
+  return position
+};
+
+function gsize(){
+  var size = $("#img-div").css("background-size")
+  size = size.match(regex);
+  return size
+};
+
 $(function(){
 
   var position = null
   var size = null
-  const regex = /-?[0-9]+/g;
   var is_down = false;
   var drag_start_X = 0;
   var drag_start_Y = 0;
   var mouse_move_counter = 0;
-
-  function gposition(){
-    var position = $("#img-div").css("background-position");
-    position = position.match(regex);
-    return position
-  }
-
-  function gsize(){
-    var size = $("#img-div").css("background-size")
-    size = size.match(regex);
-    return size
-  }
 
   function zoomin() {
       size = gsize();
