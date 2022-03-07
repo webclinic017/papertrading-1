@@ -13,7 +13,7 @@ with open(ROOT_PATH + "/papertrading/static/ref/nifty50.json", "r") as f:
         NIFTY_STOCK = json.load(f)
 
 SECTORS = ["NIFTY 50", "NIFTY BANK", "NIFTY IT", "NIFTY PHARMA", "NIFTY FMCG", "NIFTY MEDIA",
-                                                "NIFTY METAL", "NIFTY REALTY"]
+                                                "NIFTY METAL", "NIFTY REALTY", "NIFTY AUTO"]
 
 def get_data(end, nifty, slist=None):
     if end is None:
@@ -54,7 +54,8 @@ def rscore_screener(vz):
             vz[s]["margin_up"],
             vz[s]["margin_down"],
             vz[s]["tpo-ratio"],
-            SECTOR_MAP.get(s, "other").upper()
+            SECTOR_MAP.get(s, "other").upper(),
+            round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2)
         ])
     return rscore
 
@@ -73,7 +74,8 @@ def format_record(vz):
             vz[s]["uext"],
             vz[s]["dext"],
             f"{vz[s]['rscore']} ({vz[s]['rscore-min']}-{vz[s]['rscore-max']})",
-            SECTOR_MAP.get(s, "other").upper()
+            SECTOR_MAP.get(s, "other").upper(),
+            round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2)
         ])
     return rec
 
@@ -89,7 +91,8 @@ def format_record_2(vz):
             f"{vz[s]['rscore']} ({vz[s]['rscore-min']}-{vz[s]['rscore-max']})",
             vz[s]["orange"],
             vz[s]["otype"],
-            SECTOR_MAP.get(s, "other").upper()
+            SECTOR_MAP.get(s, "other").upper(),
+            round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2)
         ])
     return rec
 
@@ -111,7 +114,7 @@ def extended_stock_up(vz):
     return format_record(vz)
 
 def no_extended_stock_screen(vz):
-    vz = dict([(s, vz[s]) for s in vz if vz[s]["uext"] + vz[s]["dext"] == 0])
+    vz = dict([(s, vz[s]) for s in vz if vz[s]["uext"] != 0 and vz[s]["dext"] != 0])
     return format_record_2(vz)
 
 def events_screener(end=None, nifty=True):

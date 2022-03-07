@@ -222,7 +222,7 @@ $(function(){
   })
 
   $('#img-div').on('mousemove', function(e){
-    $('div.h-cross').css('top', e.clientY);
+    $('div.h-cross').css('top', e.clientY-15);
   })
 
   $('#img-div').on('mouseenter', function(e){
