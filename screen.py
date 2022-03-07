@@ -114,7 +114,7 @@ def extended_stock_up(vz):
     return format_record(vz)
 
 def no_extended_stock_screen(vz):
-    vz = dict([(s, vz[s]) for s in vz if (vz[s]["uext"] + vz[s]["dext"] == 0) or (vz[s]["uext"] != -1000)])
+    vz = dict([(s, vz[s]) for s in vz if (vz[s]["uext"] + vz[s]["dext"] == 0) or (vz[s]["uext"] == -1000)])
     return format_record_2(vz)
 
 def events_screener(end=None, nifty=True):
