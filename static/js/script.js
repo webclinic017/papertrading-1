@@ -10,9 +10,6 @@ $(function(){
     image_width = parseInt(this.width);
     image_reset();
   };
-  if(autoload != null){
-    schedule_refresh();
-  };
 
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
   var start = end.clone().subtract(5, 'day').subtract(6, 'hour').subtract(16, 'minute');
@@ -362,6 +359,10 @@ $(function(){
   $('#reset-graph').on("click", function(){
     should_reset = true;
     image_reset() });
+
+    if(autoload != null){
+      schedule_refresh();
+    };
 
 
 });
