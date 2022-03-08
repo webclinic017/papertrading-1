@@ -106,11 +106,15 @@ def extended_stock(vz):
     return format_record(vz)
 
 def extended_stock_down(vz):
-    vz = dict([(s, vz[s]) for s in vz if vz[s]["dext"] > 0 and vz[s]["uext"] == 0 and vz[s]["margin_up"] <= 10])
+    vz = dict([(s, vz[s]) for s in vz
+                if vz[s]["dext"] > 0 and vz[s]["uext"] == 0 and
+                round((1+vz[s]["margin_down"])/(1+vz[s]["margin_up"]), 2) >= 2])
     return format_record(vz)
 
 def extended_stock_up(vz):
-    vz = dict([(s, vz[s]) for s in vz if vz[s]["uext"] > 0 and vz[s]["dext"] == 0 and vz[s]["margin_down"] <= 10])
+    vz = dict([(s, vz[s]) for s in vz
+                if vz[s]["uext"] > 0 and vz[s]["dext"] == 0 and
+                round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2) >= 2])
     return format_record(vz)
 
 def no_extended_stock_screen(vz):
