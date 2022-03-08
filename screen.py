@@ -98,7 +98,7 @@ def format_record_2(vz):
 
 
 def extended_sector(vz):
-    vz = dict([(s, vz[s]) for s in vz if vz[s]["uext"] + vz[s]["dext"] > 0])
+    vz = dict([(s, vz[s]) for s in vz])
     return format_record(vz)
 
 def extended_stock(vz):

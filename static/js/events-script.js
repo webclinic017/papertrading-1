@@ -36,12 +36,12 @@ $(document).ready(function() {
                       }
                     } });
 
-    var extended_sector = $('#extended-sector').DataTable(Object.assign({}, base_options, {"order": [[ 1, "asc" ], [ 2, "asc" ]]} ));
-    var extended_stock = $('#extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 1, "asc" ], [ 2, "asc" ]]} ));
-    var extended_stock_down = $('#extended-stock-down').DataTable(Object.assign({}, base_options, {"order": [[ 1, "asc" ]]} ));
-    var extended_stock_up = $('#extended-stock-up').DataTable(Object.assign({}, base_options, {"order": [[ 2, "asc" ]]} ));
-    var market_screeners = $('#market-screeners').DataTable(Object.assign({}, ms_options, {"order": [[ 9, "asc" ]]} ));
-    var no_extended_stock = $('#no-extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 6, "asc" ], [ 7, "desc" ]]} ));
+    var extended_sector = $('#extended-sector').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
+    var extended_stock = $('#extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
+    var extended_stock_down = $('#extended-stock-down').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
+    var extended_stock_up = $('#extended-stock-up').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
+    var market_screeners = $('#market-screeners').DataTable(Object.assign({}, ms_options, {"order": [[ 14, "asc" ]]} ));
+    var no_extended_stock = $('#no-extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 9, "asc" ]]} ));
 
     var tables = [{"name": "extended_sector", "var": extended_sector},
                   {"name": "extended_stock", "var": extended_stock},
