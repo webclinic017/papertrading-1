@@ -40,8 +40,8 @@ $(document).ready(function() {
     var extended_stock = $('#extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
     var extended_stock_down = $('#extended-stock-down').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
     var extended_stock_up = $('#extended-stock-up').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
-    var market_screeners = $('#market-screeners').DataTable(Object.assign({}, ms_options, {"order": [[ 14, "asc" ]]} ));
-    var no_extended_stock = $('#no-extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 9, "asc" ]]} ));
+    var market_screeners = $('#market-screeners').DataTable(Object.assign({}, ms_options, {"order": [[ 14, "desc" ]]} ));
+    var no_extended_stock = $('#no-extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 9, "desc" ]]} ));
 
     var tables = [{"name": "extended_sector", "var": extended_sector},
                   {"name": "extended_stock", "var": extended_stock},
