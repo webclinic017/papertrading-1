@@ -8,7 +8,10 @@ $(function(){
   img.onload = function() {
     image_height = parseInt(this.height);
     image_width = parseInt(this.width);
-    image_reset();
+    image_reset_size();
+    if (should_reset){
+      image_reset_position();
+    }
   };
 
   var end = moment().startOf('day').add(15, 'hour').add(30, 'minute');
@@ -75,26 +78,25 @@ $(function(){
       }
   });
 
-  function image_reset() {
-    size = gsize();
-    const pheight = parseInt(size[1])
+  function image_reset_size() {
     var maxheight = parseInt($(".root-div").css('height')) - 30;
     var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
     var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
 
-    if (!should_reset){
-      if(Math.abs(image_height - pheight) > 50){
-        $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
-      }
-      return
-    }
+    $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
+    $('div.h-cross').css('width', newWidth + "px");
+  }
+
+
+  function image_reset_position() {
+    var maxheight = parseInt($(".root-div").css('height')) - 30;
+    var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
+    var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
 
     const xposition = Math.min(0, parseInt($(".root-div").css('width')) - newWidth);
-    $("#img-div").css("background-size", `${newWidth}px ${newHeight}px`);
     $("#img-div").css("background-position", `${xposition}px 10px, left top`);
-    $('div.h-cross').css('width', newWidth + "px");
     should_reset = false;
-  };
+  }
 
   function stats_refresh(){
     $.ajax({
@@ -357,8 +359,9 @@ $(function(){
   });
 
   $('#reset-graph').on("click", function(){
-    should_reset = true;
-    image_reset() });
+    image_reset_size();
+    image_reset_position();
+   });
 
     if(autoload != null){
       schedule_refresh();
