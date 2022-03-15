@@ -36,7 +36,7 @@ $(document).ready(function() {
                       }
                     } });
 
-    var extended_sector = $('#extended-sector').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
+    var extended_sector = $('#extended-sector').DataTable(Object.assign({}, base_options, {"order": [[ 6, "desc" ]]} ));
     var extended_stock = $('#extended-stock').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
     var extended_stock_down = $('#extended-stock-down').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
     var extended_stock_up = $('#extended-stock-up').DataTable(Object.assign({}, base_options, {"order": [[ 7, "desc" ]]} ));
