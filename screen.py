@@ -2,9 +2,6 @@ from trader import *
 import json
 import logging
 
-# with open(ROOT_PATH + "/papertrading/static/stable.json") as f:
-#     STOCKS = json.load(f)
-
 with open(ROOT_PATH + "/papertrading/static/ref/sector_map.json", "r") as f:
         SECTOR_MAP = json.load(f)
         STOCKS = list(SECTOR_MAP.keys())
@@ -12,8 +9,14 @@ with open(ROOT_PATH + "/papertrading/static/ref/sector_map.json", "r") as f:
 with open(ROOT_PATH + "/papertrading/static/ref/nifty50.json", "r") as f:
         NIFTY_STOCK = json.load(f)
 
+with open(ROOT_PATH + "/papertrading/static/ref/sector_weight.json", "r") as f:
+        SECTOR_WEIGHT = json.load(f)
+
+with open(ROOT_PATH + "/papertrading/static/ref/stock_weight.json", "r") as f:
+        STOCK_WEIGHT = json.load(f)
+
 SECTORS = ["NIFTY 50", "NIFTY BANK", "NIFTY IT", "NIFTY PHARMA", "NIFTY FMCG", "NIFTY MEDIA",
-                                                "NIFTY METAL", "NIFTY REALTY", "NIFTY AUTO"]
+            "NIFTY METAL", "NIFTY AUTO", "NIFTY ENERGY"]
 
 def get_data(end, nifty, slist=None):
     if end is None:
@@ -74,8 +77,8 @@ def format_record(vz):
             vz[s]["uext"],
             vz[s]["dext"],
             f"{vz[s]['rscore']} ({vz[s]['rscore-min']}-{vz[s]['rscore-max']})",
-            SECTOR_MAP.get(s, "other").upper(),
-            round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2)
+            round((1+vz[s]["margin_up"])/(1+vz[s]["margin_down"]), 2),
+            SECTOR_WEIGHT.get(s, 0)
         ])
     return rec
 

@@ -89,6 +89,7 @@ $(function(){
 
 
   function image_reset_position() {
+    // check if image with overflow to righ and then adjust 
     var maxheight = parseInt($(".root-div").css('height')) - 30;
     var newHeight = parseInt(maxheight > image_height ? image_height : maxheight);
     var newWidth = parseInt(maxheight > image_height ? image_width : image_width * (maxheight/image_height));
